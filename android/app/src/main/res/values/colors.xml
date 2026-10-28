@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="salon_gold">#C29F67</color>
+    <color name="salon_gold_dark">#9C753D</color>
+    <color name="salon_dark">#1C1B1A</color>
+    <color name="salon_bg">#FAF7F2</color>
+    <color name="salon_border">#E6D4BA</color>
+    <color name="salon_text_muted">#79746D</color>
+    <color name="white">#FFFFFFFF</color>
+</resources>

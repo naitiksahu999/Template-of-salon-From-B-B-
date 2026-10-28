@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">B &amp; B Family Salon</string>
+    <string name="salon_tagline">The Art of Refined Grooming &amp; Beauty Sanctuary in Bhopal</string>
+    <string name="salon_phone">+91 91316 29031</string>
+    <string name="salon_address">2nd Floor, Ultimate Arcade, F11-12, Kolar Road, Bhopal</string>
+    <string name="supabase_sync_status">Synchronized with Supabase Cloud Database</string>
+</resources>

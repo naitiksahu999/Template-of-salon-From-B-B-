@@ -1,0 +1,8 @@
+{
+  "name": "Remix B \u0026 B Family Salon - Premium Unisex Salon Bhopal",
+  "description": "B \u0026 B Family Salon (B\u0026B Unisex Salon) in Kolar Road, Bhopal. Premium unisex and family salon offering master hair styling, skin care, bridal makeup, and luxury personal care with online appointment booking.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

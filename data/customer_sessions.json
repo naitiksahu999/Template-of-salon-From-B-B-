@@ -1,0 +1,156 @@
+{
+  "cust_sess_1791290715047_ccqpes06s5_vvxb8j05sq": {
+    "customerId": "cust_1791290715045_v62y",
+    "name": "Aman Verma",
+    "email": "testuser@gmail.com",
+    "phone": "9826012345",
+    "expiresAt": 1793882715047
+  },
+  "cust_sess_1791699859843_u67kos59zua_z6cq2n2xc3p": {
+    "customerId": "cust-123",
+    "name": "Test Customer",
+    "email": "testcustomer@gmail.com",
+    "phone": "9876543210",
+    "expiresAt": 1794291859843
+  },
+  "cust_sess_1791767580817_adppecrwhjn_0c8o1vwdcksh": {
+    "customerId": "cust_101",
+    "name": "Test Customer",
+    "email": "testcustomer@gmail.com",
+    "phone": "+919876543210",
+    "expiresAt": 1794359580817
+  },
+  "cust_sess_1791767668532_9feia2uskb_jpqj768bkmb": {
+    "customerId": "cust_101",
+    "name": "Test Customer",
+    "email": "testcustomer@gmail.com",
+    "phone": "+919876543210",
+    "expiresAt": 1794359668532
+  },
+  "cust_sess_1791817410317_874xt1zi4wr_84m3jivs57": {
+    "customerId": "cust_1791817410316_3lk9",
+    "name": "Priya Sharma",
+    "email": "priya.sharma.1791817406067@gmail.com",
+    "phone": "9826019999",
+    "expiresAt": 1794409410317
+  },
+  "cust_sess_1791817413791_pz8gc27cb9_vys24dnlz5e": {
+    "customerId": "cust_1791817410316_3lk9",
+    "name": "Priya Sharma",
+    "email": "priya.sharma.1791817406067@gmail.com",
+    "phone": "9826019999",
+    "expiresAt": 1794409413791
+  },
+  "cust_sess_1791819709212_henvjtkuzkl_9biebpbybbg": {
+    "customerId": "cust_1791290715045_v62y",
+    "name": "Aman Verma",
+    "email": "testuser@gmail.com",
+    "phone": "9826012345",
+    "expiresAt": 1794411709212
+  },
+  "cust_sess_1791819795308_6pgx3s46iz_6omvojh4l7o": {
+    "customerId": "cust_1791290715045_v62y",
+    "name": "Aman Verma",
+    "email": "testuser@gmail.com",
+    "phone": "9826012345",
+    "expiresAt": 1794411795308
+  },
+  "cust_sess_1791819806637_2x2blbff9fi_d2zv5cfza8": {
+    "customerId": "cust_1791290715045_v62y",
+    "name": "Aman Verma",
+    "email": "testuser@gmail.com",
+    "phone": "9826012345",
+    "expiresAt": 1794411806637
+  },
+  "cust_sess_1791819862955_hyhcj1vjgm7_knucx3ebfvo": {
+    "customerId": "cust_1791290715045_v62y",
+    "name": "Aman Verma",
+    "email": "testuser@gmail.com",
+    "phone": "9826012345",
+    "expiresAt": 1794411862955
+  },
+  "cust_sess_1791819908427_hql6x0544eu_nj1vmf2g8pq": {
+    "customerId": "cust_1791290715045_v62y",
+    "name": "Aman Verma",
+    "email": "testuser@gmail.com",
+    "phone": "9826012345",
+    "expiresAt": 1794411908427
+  },
+  "cust_sess_1791819940152_eary2e0onz_9afwg2i2xh6": {
+    "customerId": "cust_1791290715045_v62y",
+    "name": "Aman Verma",
+    "email": "testuser@gmail.com",
+    "phone": "9826012345",
+    "expiresAt": 1794411940152
+  },
+  "cust_sess_1792146087767_6aiki3z02kj_w0lgde0yea": {
+    "customerId": "cust_1792146083025_vi21",
+    "name": "Priya Sharma",
+    "email": "priya.sharma.1792146078951@gmail.com",
+    "phone": "9826019999",
+    "expiresAt": 1794738087767
+  },
+  "cust_sess_1792146545157_dvjcz4vvt1l_mazdnxrgu3a": {
+    "customerId": "cust_1792146544780_djd9",
+    "name": "Test User",
+    "email": "test.1792146540677@gmail.com",
+    "phone": "9826019999",
+    "expiresAt": 1794738545157
+  },
+  "cust_sess_1792222918864_ljl451z3ej_r7g0lypva6i": {
+    "customerId": "cust_1792222913706_8gkw",
+    "name": "Priya Sharma",
+    "email": "priya.sharma.1792222909242@gmail.com",
+    "phone": "9826019999",
+    "expiresAt": 1794814918864
+  },
+  "cust_sess_1792223027607_0ahkx856knup_d7viesu09ee": {
+    "customerId": "cust_1792223027198_bhrg",
+    "name": "Client To Delete",
+    "email": "del.test.1792223023436@gmail.com",
+    "phone": "9826056599",
+    "expiresAt": 1794815027607
+  },
+  "cust_sess_1792224213091_p4v4akx71if_vdt6emgxjbm": {
+    "customerId": "cust_1792224207602_stk5",
+    "name": "Priya Sharma",
+    "email": "priya.sharma.1792224203653@gmail.com",
+    "phone": "9826019999",
+    "expiresAt": 1794816213091
+  },
+  "cust_sess_1792224850769_7ry5x5tmmgg_6nb9jfnq2c2": {
+    "customerId": "cust_1792224844727_cysh",
+    "name": "Priya Sharma",
+    "email": "priya.sharma.1792224840055@gmail.com",
+    "phone": "9826019999",
+    "expiresAt": 1794816850769
+  },
+  "cust_sess_1792589211806_l9tge0giva_xcczrgd20h": {
+    "customerId": "cust_1792589207036_25oo",
+    "name": "Priya Sharma",
+    "email": "priya.sharma.1792589202496@gmail.com",
+    "phone": "9826019999",
+    "expiresAt": 1795181211806
+  },
+  "cust_sess_1792589269921_l2j4n8ukren_98glvffwq9f": {
+    "customerId": "cust_1792589265448_7btj",
+    "name": "Priya Sharma",
+    "email": "priya.sharma.1792589261993@gmail.com",
+    "phone": "9826019999",
+    "expiresAt": 1795181269921
+  },
+  "cust_sess_1792589346722_fyrr7ps6aie_msl7udhl51": {
+    "customerId": "cust_1792589341326_45wk",
+    "name": "Priya Sharma",
+    "email": "priya.sharma.1792589337417@gmail.com",
+    "phone": "9826019999",
+    "expiresAt": 1795181346722
+  },
+  "cust_sess_1792605293469_fpfqepd48b_do7ry2mxvjm": {
+    "customerId": "cust_1792605289500_88r2",
+    "name": "Priya Sharma",
+    "email": "priya.sharma.1792605285941@gmail.com",
+    "phone": "9826019999",
+    "expiresAt": 1795197293469
+  }
+}
