@@ -12,6 +12,7 @@ import {
   getSupabaseMigrationSql,
   syncAppointmentToSupabase,
   syncServicesToSupabase,
+  syncCategoriesToSupabase,
   syncBusinessHoursToSupabase,
   syncBlockedDatesToSupabase,
   syncSettingsToSupabase,
@@ -55,7 +56,7 @@ import {
   revokeCustomerSessionToken,
   getCustomerFromRequest
 } from './server/auth.ts';
-import type { StaffMember, AdminNotification, Review } from './src/types/index.ts';
+import type { StaffMember, AdminNotification, Review, ServiceCategory } from './src/types/index.ts';
 
 dotenv.config();
 
@@ -2207,6 +2208,64 @@ async function startServer() {
     }
   });
 
+  // Categories Management (Admin)
+  app.get('/api/admin/categories', requireAdminAuth, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const db = await getDb();
+      const sorted = [...db.categories].sort((a, b) => a.sortOrder - b.sortOrder);
+      res.json(sorted);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.post('/api/admin/categories', requireAdminAuth, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const db = await getDb();
+      const { name, description } = req.body;
+
+      if (!name || typeof name !== 'string' || !name.trim()) {
+        res.status(400).json({ error: 'Category name is required.' });
+        return;
+      }
+
+      const trimmedName = name.trim();
+      const existing = db.categories.find(
+        (c) => c.name.toLowerCase() === trimmedName.toLowerCase()
+      );
+      if (existing) {
+        res.status(200).json(existing);
+        return;
+      }
+
+      const slug =
+        trimmedName
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/(^-|-$)/g, '') || `cat-${Date.now()}`;
+
+      const maxSortOrder = db.categories.reduce((max, c) => Math.max(max, c.sortOrder || 0), 0);
+
+      const newCategory: ServiceCategory = {
+        id: `cat_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+        name: trimmedName,
+        slug,
+        description: description?.trim() || `Custom treatment category for ${trimmedName}.`,
+        sortOrder: maxSortOrder + 1
+      };
+
+      db.categories.push(newCategory);
+      await saveDb(db);
+      syncCategoriesToSupabase(db.categories).catch((err) =>
+        console.error('[Supabase AutoSync Categories Error]:', err)
+      );
+
+      res.status(201).json(newCategory);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
   // Services Management
   app.get('/api/admin/services', requireAdminAuth, async (req: AuthenticatedRequest, res: Response) => {
     const db = await getDb();
@@ -2216,11 +2275,59 @@ async function startServer() {
   app.post('/api/admin/services', requireAdminAuth, async (req: AuthenticatedRequest, res: Response) => {
     try {
       const db = await getDb();
-      const { name, categoryId, description, price, durationMinutes, imageUrl, isActive, isFeatured } = req.body;
+      const {
+        name,
+        categoryId,
+        description,
+        price,
+        durationMinutes,
+        imageUrl,
+        isActive,
+        isFeatured,
+        priceType,
+        minPrice,
+        maxPrice
+      } = req.body;
 
-      if (!name || !categoryId || price === undefined || !durationMinutes) {
-        res.status(400).json({ error: 'Name, category, price, and duration are required.' });
+      if (!name || !categoryId || !durationMinutes) {
+        res.status(400).json({ error: 'Name, category, and duration are required.' });
         return;
+      }
+
+      const isRange = priceType === 'range';
+      let effectivePrice: number;
+      let effectiveMinPrice: number | undefined = undefined;
+      let effectiveMaxPrice: number | undefined = undefined;
+
+      if (isRange) {
+        const min = Number(minPrice);
+        const max = Number(maxPrice);
+        if (isNaN(min) || isNaN(max)) {
+          res.status(400).json({ error: 'Both Minimum and Maximum prices are required for price range.' });
+          return;
+        }
+        if (min < 0 || max < 0) {
+          res.status(400).json({ error: 'Prices must be positive numbers (₹0 or greater).' });
+          return;
+        }
+        if (min > max) {
+          res.status(400).json({ error: 'Minimum price cannot exceed the maximum price.' });
+          return;
+        }
+        effectivePrice = min;
+        effectiveMinPrice = min;
+        effectiveMaxPrice = max;
+      } else {
+        if (price === undefined || price === null || isNaN(Number(price))) {
+          res.status(400).json({ error: 'Price is required.' });
+          return;
+        }
+        const numPrice = Number(price);
+        if (numPrice < 0) {
+          res.status(400).json({ error: 'Price must be a positive number (₹0 or greater).' });
+          return;
+        }
+        effectivePrice = numPrice;
       }
 
       const newService = {
@@ -2228,7 +2335,10 @@ async function startServer() {
         categoryId,
         name: name.trim(),
         description: description || '',
-        price: Number(price),
+        price: effectivePrice,
+        priceType: isRange ? ('range' as const) : ('exact' as const),
+        minPrice: effectiveMinPrice,
+        maxPrice: effectiveMaxPrice,
         durationMinutes: Number(durationMinutes),
         imageUrl: imageUrl || '/src/assets/images/salon_hair_styling_1790779479714.jpg',
         isActive: isActive !== undefined ? Boolean(isActive) : true,
@@ -2257,12 +2367,64 @@ async function startServer() {
       }
 
       const s = db.services[index];
-      const { name, categoryId, description, price, durationMinutes, imageUrl, isActive, isFeatured } = req.body;
+      const {
+        name,
+        categoryId,
+        description,
+        price,
+        durationMinutes,
+        imageUrl,
+        isActive,
+        isFeatured,
+        priceType,
+        minPrice,
+        maxPrice
+      } = req.body;
 
       if (name !== undefined) s.name = name;
       if (categoryId !== undefined) s.categoryId = categoryId;
       if (description !== undefined) s.description = description;
-      if (price !== undefined) s.price = Number(price);
+
+      if (priceType !== undefined) {
+        if (priceType === 'range') {
+          const min = Number(minPrice !== undefined ? minPrice : s.minPrice ?? s.price);
+          const max = Number(maxPrice !== undefined ? maxPrice : s.maxPrice ?? s.price);
+          if (isNaN(min) || isNaN(max)) {
+            res.status(400).json({ error: 'Both Minimum and Maximum prices are required for price range.' });
+            return;
+          }
+          if (min < 0 || max < 0) {
+            res.status(400).json({ error: 'Prices must be positive numbers (₹0 or greater).' });
+            return;
+          }
+          if (min > max) {
+            res.status(400).json({ error: 'Minimum price cannot exceed the maximum price.' });
+            return;
+          }
+          s.priceType = 'range';
+          s.minPrice = min;
+          s.maxPrice = max;
+          s.price = min;
+        } else {
+          const numPrice = Number(price !== undefined ? price : s.price);
+          if (isNaN(numPrice) || numPrice < 0) {
+            res.status(400).json({ error: 'Price must be a positive number (₹0 or greater).' });
+            return;
+          }
+          s.priceType = 'exact';
+          s.price = numPrice;
+          s.minPrice = undefined;
+          s.maxPrice = undefined;
+        }
+      } else if (price !== undefined) {
+        const numPrice = Number(price);
+        if (isNaN(numPrice) || numPrice < 0) {
+          res.status(400).json({ error: 'Price must be a positive number (₹0 or greater).' });
+          return;
+        }
+        s.price = numPrice;
+      }
+
       if (durationMinutes !== undefined) s.durationMinutes = Number(durationMinutes);
       if (imageUrl !== undefined) s.imageUrl = imageUrl;
       if (isActive !== undefined) s.isActive = Boolean(isActive);

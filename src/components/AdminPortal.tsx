@@ -64,7 +64,8 @@ import {
   SiteSettings,
   NotificationLog,
   StaffMember,
-  AdminNotification
+  AdminNotification,
+  formatServicePrice
 } from '../types/index.ts';
 import { api, getAdminToken, setAdminToken, clearAdminToken, EmailHubData } from '../api.ts';
 import {
@@ -254,6 +255,9 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   // Modals inside Admin
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
   const [editingService, setEditingService] = useState<Partial<Service> | null>(null);
+  const [showAddCategoryInput, setShowAddCategoryInput] = useState<boolean>(false);
+  const [newCustomCategoryName, setNewCustomCategoryName] = useState<string>('');
+  const [creatingCategoryLoading, setCreatingCategoryLoading] = useState<boolean>(false);
   const [newBlockDate, setNewBlockDate] = useState<string>('');
   const [newBlockReason, setNewBlockReason] = useState<string>('');
   const [newBlockAllDay, setNewBlockAllDay] = useState<boolean>(true);
@@ -1530,17 +1534,94 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
     );
   };
 
+  // Custom Category Creation
+  const handleSaveCustomCategory = async () => {
+    const trimmed = newCustomCategoryName.trim();
+    if (!trimmed) {
+      showSuccessModal('Category Required', 'Please enter a name for the new category.');
+      return;
+    }
+    setCreatingCategoryLoading(true);
+    try {
+      const created = await api.createAdminCategory({ name: trimmed });
+      setCategories((prev) => {
+        if (prev.some((c) => c.id === created.id)) return prev;
+        return [...prev, created];
+      });
+      if (editingService) {
+        setEditingService((prev) => (prev ? { ...prev, categoryId: created.id } : prev));
+      }
+      setNewCustomCategoryName('');
+      setShowAddCategoryInput(false);
+      await loadAllAdminData();
+      onDataChanged();
+      showSuccessModal('Category Created', `New category "${created.name}" is now available and selected.`);
+    } catch (err: any) {
+      showSuccessModal('Creation Failed', err.message || 'Failed to save new category.');
+    } finally {
+      setCreatingCategoryLoading(false);
+    }
+  };
+
   // Services actions
+  const handleEditServiceClick = (service: Service) => {
+    const isRange =
+      service.priceType === 'range' ||
+      (service.minPrice != null && service.maxPrice != null && service.minPrice !== service.maxPrice);
+    setEditingService({
+      ...service,
+      priceType: isRange ? 'range' : 'exact',
+      minPrice: service.minPrice,
+      maxPrice: service.maxPrice
+    });
+  };
+
   const handleSaveService = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingService) return;
-    try {
-      if (editingService.id) {
-        await api.updateAdminService(editingService.id, editingService);
-      } else {
-        await api.createAdminService(editingService);
+
+    // Validate pricing
+    const isRange = editingService.priceType === 'range';
+    const payload: Partial<Service> = { ...editingService };
+
+    if (isRange) {
+      const min = Number(payload.minPrice);
+      const max = Number(payload.maxPrice);
+      if (isNaN(min) || isNaN(max)) {
+        showSuccessModal('Invalid Price Range', 'Please enter valid numbers for both Minimum Price and Maximum Price.');
+        return;
       }
-      const sName = editingService.name || 'Service';
+      if (min < 0 || max < 0) {
+        showSuccessModal('Invalid Price Range', 'Prices must be positive numbers (₹0 or greater).');
+        return;
+      }
+      if (min > max) {
+        showSuccessModal('Invalid Price Range', 'Minimum price cannot exceed the maximum price.');
+        return;
+      }
+      payload.priceType = 'range';
+      payload.minPrice = min;
+      payload.maxPrice = max;
+      payload.price = min;
+    } else {
+      const p = Number(payload.price);
+      if (isNaN(p) || p < 0) {
+        showSuccessModal('Invalid Price', 'Price must be a positive number (₹0 or greater).');
+        return;
+      }
+      payload.priceType = 'exact';
+      payload.price = p;
+      payload.minPrice = undefined;
+      payload.maxPrice = undefined;
+    }
+
+    try {
+      if (payload.id) {
+        await api.updateAdminService(payload.id, payload);
+      } else {
+        await api.createAdminService(payload);
+      }
+      const sName = payload.name || 'Service';
       setEditingService(null);
       await loadAllAdminData();
       onDataChanged();
@@ -3942,6 +4023,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                             name: '',
                             description: '',
                             price: 300,
+                            priceType: 'exact',
                             durationMinutes: 30,
                             isActive: true,
                             isFeatured: false
@@ -4037,7 +4119,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                                       {service.name}
                                     </h4>
                                     <span className="font-bold text-xs text-[#9C753D] dark:text-[#C29F67] shrink-0 tabular-nums">
-                                      ₹{service.price}
+                                      {formatServicePrice(service)}
                                     </span>
                                   </div>
 
@@ -4058,7 +4140,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                                 <div className="pt-2 border-t border-gray-100 dark:border-white/10 flex items-center gap-1.5">
                                   <button
                                     type="button"
-                                    onClick={() => setEditingService(service)}
+                                    onClick={() => handleEditServiceClick(service)}
                                     className="flex-1 py-1.5 px-2 bg-[#1C1B1A] dark:bg-[#C29F67] hover:bg-[#2A2826] text-white dark:text-[#1C1B1A] text-[11px] font-bold rounded-lg flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
                                   >
                                     <Edit2 className="w-3 h-3" />
@@ -4099,14 +4181,14 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                                   {service.name}
                                 </h4>
                                 <span className="font-bold text-xs text-[#9C753D] dark:text-[#C29F67] tabular-nums block mb-1">
-                                  ₹{service.price} · {service.durationMinutes}m
+                                  {formatServicePrice(service)} · {service.durationMinutes}m
                                 </span>
                               </div>
 
                               <div className="pt-2 border-t border-gray-100 dark:border-white/10 flex items-center gap-1">
                                 <button
                                   type="button"
-                                  onClick={() => setEditingService(service)}
+                                  onClick={() => handleEditServiceClick(service)}
                                   className="flex-1 py-1.5 bg-[#1C1B1A] dark:bg-[#C29F67] text-white dark:text-[#1C1B1A] text-[10px] font-bold rounded-md flex items-center justify-center gap-1 cursor-pointer"
                                 >
                                   <Edit2 className="w-3 h-3" />
@@ -4154,7 +4236,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                                   {service.name}
                                 </h4>
                                 <span className="font-bold text-sm text-[#1C1B1A] dark:text-white tabular-nums shrink-0">
-                                  ₹{service.price}
+                                  {formatServicePrice(service)}
                                 </span>
                               </div>
                               <div className="flex items-center gap-2 text-xs text-[#79746D] dark:text-gray-400 mt-1 font-medium">
@@ -4185,7 +4267,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                           <div className="flex items-center gap-2">
                             <button
                               type="button"
-                              onClick={() => setEditingService(service)}
+                              onClick={() => handleEditServiceClick(service)}
                               className="px-3 py-1.5 bg-[#FAF7F2] dark:bg-white/10 hover:bg-[#1C1B1A] hover:text-white dark:hover:bg-[#C29F67] dark:hover:text-[#1C1B1A] text-[#1C1B1A] dark:text-white rounded-lg transition-colors cursor-pointer flex items-center gap-1.5 font-bold text-xs shadow-2xs"
                               title="Edit service details"
                             >
@@ -5033,7 +5115,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                                     {categoryObj ? categoryObj.name : 'Service'}
                                   </span>
                                   <span className="absolute top-2 right-2 text-xs font-black bg-[#C29F67] text-[#1C1B1A] px-2 py-0.5 rounded-md shadow-xs">
-                                    ₹{srv.price}
+                                    {formatServicePrice(srv)}
                                   </span>
                                 </div>
 
@@ -8733,7 +8815,11 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                 </h4>
                 <button
                   type="button"
-                  onClick={() => setEditingService(null)}
+                  onClick={() => {
+                    setEditingService(null);
+                    setShowAddCategoryInput(false);
+                    setNewCustomCategoryName('');
+                  }}
                   className="p-1.5 text-gray-400 hover:text-gray-700 dark:hover:text-white rounded-lg cursor-pointer"
                 >
                   <X className="w-4 h-4" />
@@ -8754,12 +8840,34 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                   </div>
 
                   <div>
-                    <label className="block font-bold text-[#1C1B1A] dark:text-white mb-1">Category</label>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="block font-bold text-[#1C1B1A] dark:text-white">Category</label>
+                      {!showAddCategoryInput && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setShowAddCategoryInput(true);
+                            setNewCustomCategoryName('');
+                          }}
+                          className="text-[11px] font-bold text-[#9C753D] dark:text-[#C29F67] hover:underline flex items-center gap-1 cursor-pointer"
+                        >
+                          <Plus className="w-3 h-3" />
+                          <span>+ Add Category</span>
+                        </button>
+                      )}
+                    </div>
+
                     <select
                       value={editingService.categoryId || categories[0]?.id}
-                      onChange={(e) =>
-                        setEditingService({ ...editingService, categoryId: e.target.value })
-                      }
+                      onChange={(e) => {
+                        if (e.target.value === '__add_category__') {
+                          setShowAddCategoryInput(true);
+                          setNewCustomCategoryName('');
+                          return;
+                        }
+                        setShowAddCategoryInput(false);
+                        setEditingService({ ...editingService, categoryId: e.target.value });
+                      }}
                       className="w-full px-3 py-2 bg-white dark:bg-[#1C1B1A] border border-gray-200 dark:border-white/10 rounded-lg text-xs text-[#1C1B1A] dark:text-white outline-hidden focus:border-[#C29F67]"
                     >
                       {categories.map((c) => (
@@ -8767,23 +8875,175 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                           {c.name}
                         </option>
                       ))}
+                      <option value="__add_category__" className="font-bold text-[#9C753D] dark:text-[#C29F67]">
+                        + Add Category
+                      </option>
                     </select>
+
+                    {showAddCategoryInput && (
+                      <div className="mt-2.5 p-3 bg-[#FAF7F2] dark:bg-white/5 border border-[#C29F67]/60 dark:border-[#C29F67]/50 rounded-xl space-y-2 animate-in fade-in duration-150 shadow-xs">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] font-bold text-[#1C1B1A] dark:text-white flex items-center gap-1.5">
+                            <Plus className="w-3.5 h-3.5 text-[#C29F67]" />
+                            <span>Add New Custom Category</span>
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setShowAddCategoryInput(false);
+                              setNewCustomCategoryName('');
+                            }}
+                            className="text-gray-400 hover:text-gray-600 dark:hover:text-white p-0.5 cursor-pointer"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            placeholder="Enter new category name..."
+                            value={newCustomCategoryName}
+                            onChange={(e) => setNewCustomCategoryName(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                handleSaveCustomCategory();
+                              }
+                            }}
+                            autoFocus
+                            className="flex-1 px-3 py-2 bg-white dark:bg-[#1C1B1A] border border-gray-300 dark:border-white/15 rounded-lg text-xs text-[#1C1B1A] dark:text-white outline-hidden focus:border-[#C29F67]"
+                          />
+                          <button
+                            type="button"
+                            disabled={creatingCategoryLoading || !newCustomCategoryName.trim()}
+                            onClick={handleSaveCustomCategory}
+                            className="px-3.5 py-2 bg-[#1C1B1A] dark:bg-[#C29F67] hover:bg-black dark:hover:bg-[#B38C4F] text-white dark:text-[#1C1B1A] font-bold text-xs rounded-lg transition-colors cursor-pointer disabled:opacity-50 flex items-center gap-1.5 shadow-2xs shrink-0"
+                          >
+                            {creatingCategoryLoading ? (
+                              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                            ) : (
+                              <Check className="w-3.5 h-3.5" />
+                            )}
+                            <span>Save</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setShowAddCategoryInput(false);
+                              setNewCustomCategoryName('');
+                            }}
+                            className="px-2.5 py-2 bg-white dark:bg-white/10 hover:bg-gray-100 dark:hover:bg-white/15 text-[#79746D] dark:text-gray-300 text-xs font-semibold rounded-lg border border-gray-200 dark:border-white/10 transition-colors cursor-pointer"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                        <p className="text-[10px] text-[#79746D] dark:text-gray-400">
+                          Saves permanently to Supabase and immediately appears in the category selection list.
+                        </p>
+                      </div>
+                    )}
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="block font-bold text-[#1C1B1A] dark:text-white mb-1">Price (₹)</label>
-                      <input
-                        type="number"
-                        required
-                        min={0}
-                        value={editingService.price ?? 300}
-                        onChange={(e) =>
-                          setEditingService({ ...editingService, price: Number(e.target.value) })
-                        }
-                        className="w-full px-3 py-2 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-xs text-[#1C1B1A] dark:text-white outline-hidden focus:border-[#C29F67]"
-                      />
-                    </div>
+                    {editingService.priceType === 'range' ? (
+                      <div>
+                        <div className="flex items-center justify-between mb-1">
+                          <label className="block font-bold text-[#1C1B1A] dark:text-white">Price Range (₹)</label>
+                          <span className="text-[10px] text-[#9C753D] dark:text-[#C29F67] font-semibold">Min – Max</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <div className="grid grid-cols-2 gap-1.5 flex-1 min-w-0">
+                            <div>
+                              <input
+                                type="number"
+                                required
+                                min={0}
+                                placeholder="Min (₹)"
+                                title="Minimum Price (₹)"
+                                value={editingService.minPrice ?? ''}
+                                onChange={(e) =>
+                                  setEditingService({
+                                    ...editingService,
+                                    minPrice: e.target.value === '' ? undefined : Number(e.target.value)
+                                  })
+                                }
+                                className="w-full px-2.5 py-2 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-xs text-[#1C1B1A] dark:text-white outline-hidden focus:border-[#C29F67]"
+                              />
+                            </div>
+                            <div>
+                              <input
+                                type="number"
+                                required
+                                min={0}
+                                placeholder="Max (₹)"
+                                title="Maximum Price (₹)"
+                                value={editingService.maxPrice ?? ''}
+                                onChange={(e) =>
+                                  setEditingService({
+                                    ...editingService,
+                                    maxPrice: e.target.value === '' ? undefined : Number(e.target.value)
+                                  })
+                                }
+                                className="w-full px-2.5 py-2 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-xs text-[#1C1B1A] dark:text-white outline-hidden focus:border-[#C29F67]"
+                              />
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const exactVal = editingService.price ?? editingService.minPrice ?? 300;
+                              setEditingService({
+                                ...editingService,
+                                priceType: 'exact',
+                                price: exactVal
+                              });
+                            }}
+                            title="Switch to Exact Price"
+                            className="p-2 border border-[#C29F67] bg-[#C29F67]/15 dark:bg-[#C29F67]/25 rounded-lg text-[#9C753D] dark:text-[#C29F67] hover:bg-[#C29F67]/30 transition-colors cursor-pointer shrink-0 shadow-2xs"
+                          >
+                            <ArrowLeftRight className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div>
+                        <div className="flex items-center justify-between mb-1">
+                          <label className="block font-bold text-[#1C1B1A] dark:text-white">Price (₹)</label>
+                          <span className="text-[10px] text-[#79746D] dark:text-gray-400 font-medium">Exact Price</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <input
+                            type="number"
+                            required
+                            min={0}
+                            placeholder="300"
+                            value={editingService.price ?? 300}
+                            onChange={(e) =>
+                              setEditingService({ ...editingService, price: Number(e.target.value) })
+                            }
+                            className="w-full px-3 py-2 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-xs text-[#1C1B1A] dark:text-white outline-hidden focus:border-[#C29F67]"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const cur = editingService.price ?? 300;
+                              const minVal = editingService.minPrice ?? cur;
+                              const maxVal = editingService.maxPrice ?? (cur ? Math.round(cur * 1.5) : 500);
+                              setEditingService({
+                                ...editingService,
+                                priceType: 'range',
+                                minPrice: minVal,
+                                maxPrice: maxVal >= minVal ? maxVal : minVal + 100
+                              });
+                            }}
+                            title="Switch to Price Range (Min – Max)"
+                            className="p-2 border border-gray-200 dark:border-white/10 rounded-lg bg-gray-50 dark:bg-white/5 hover:bg-[#FAF7F2] dark:hover:bg-white/10 text-[#9C753D] dark:text-[#C29F67] hover:border-[#C29F67] transition-colors cursor-pointer shrink-0 shadow-2xs"
+                          >
+                            <ArrowLeftRight className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    )}
                     <div>
                       <label className="block font-bold text-[#1C1B1A] dark:text-white mb-1">Duration (Mins)</label>
                       <input
@@ -9019,7 +9279,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                   >
                     {services.map((s) => (
                       <option key={s.id} value={s.id}>
-                        {s.name} (₹{s.price} - {s.durationMinutes}m)
+                        {s.name} ({formatServicePrice(s)} - {s.durationMinutes}m)
                       </option>
                     ))}
                   </select>
@@ -9514,7 +9774,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                         {srv.name}
                       </p>
                       <span className="text-[10px] text-[#79746D] dark:text-gray-400">
-                        ₹{srv.price} · {srv.durationMinutes} mins
+                        {formatServicePrice(srv)} · {srv.durationMinutes} mins
                       </span>
                     </div>
                     <span className="text-[10px] px-2 py-0.5 rounded bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-gray-300 font-bold group-hover:bg-[#C29F67] group-hover:text-white transition-colors">

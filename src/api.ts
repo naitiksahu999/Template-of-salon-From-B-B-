@@ -320,6 +320,14 @@ export const api = {
       method: 'POST'
     }),
 
+  // Admin Categories
+  getAdminCategories: () => request<ServiceCategory[]>('/api/admin/categories'),
+  createAdminCategory: (data: { name: string; description?: string }) =>
+    request<ServiceCategory>('/api/admin/categories', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    }),
+
   // Admin Services
   getAdminServices: () => request<Service[]>('/api/admin/services'),
   createAdminService: (data: Partial<Service>) =>

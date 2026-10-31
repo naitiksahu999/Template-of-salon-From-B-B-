@@ -1,8 +1,8 @@
 [
   {
     "id": "admin_primary",
-    "username": "Mr Naitik Sahu",
-    "email": "nsahu7000326707@gmail.com",
+    "username": "Naitik Sahu",
+    "email": "naitiksahu054@gmail.com",
     "passwordHash": "$2b$10$hN4uw.uti9TYD3uDRZg/oeewKEzoTgZsheaw.faCnjXfUtDWnV8ge",
     "role": "superadmin",
     "createdAt": "2026-10-09T09:50:40.996Z"

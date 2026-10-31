@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, ZoomIn, Eye, Sparkles } from 'lucide-react';
+import { X, ZoomIn, Eye } from 'lucide-react';
 import { GalleryItem, SiteSettings } from '../types/index.ts';
 
 interface GallerySectionProps {
@@ -8,18 +8,10 @@ interface GallerySectionProps {
 }
 
 export const GallerySection: React.FC<GallerySectionProps> = ({ gallery, settings }) => {
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [activeItem, setActiveItem] = useState<GalleryItem | null>(null);
 
   const textSize = settings?.photoTextSize || 'large';
   const textArrangement = settings?.photoTextArrangement || 'card-below';
-
-  const categories = ['all', 'Ambience', 'Hair', 'Beauty & Skin', 'Makeup'];
-
-  const filteredItems = gallery.filter((item) => {
-    if (selectedCategory === 'all') return true;
-    return item.category.toLowerCase() === selectedCategory.toLowerCase();
-  });
 
   const getTitleClass = () => {
     switch (textSize) {
@@ -66,32 +58,21 @@ export const GallerySection: React.FC<GallerySectionProps> = ({ gallery, setting
           </p>
         </div>
 
-        {/* Category Filter */}
-        <div className="flex items-center justify-center gap-2 overflow-x-auto pb-4 mb-8 scrollbar-none">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              type="button"
-              onClick={() => setSelectedCategory(cat)}
-              className={`px-4 py-2 text-xs font-bold rounded-lg capitalize transition-all cursor-pointer ${
-                selectedCategory === cat
-                  ? 'bg-[#1C1B1A] dark:bg-[#C29F67] text-white shadow-xs'
-                  : 'text-[#79746D] dark:text-gray-300 hover:text-[#1C1B1A] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10'
-              }`}
-            >
-              {cat === 'all' ? 'All Visuals' : cat}
-            </button>
-          ))}
-        </div>
-
-        {/* Gallery Grid with Admin-Arranged Layout */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredItems.map((item) => (
-            <div
-              key={item.id}
-              onClick={() => setActiveItem(item)}
-              className="group relative rounded-2xl overflow-hidden cursor-pointer bg-white dark:bg-[#1C1B1A] border border-[#E6D4BA]/60 dark:border-white/10 shadow-xs hover:shadow-xl transition-all flex flex-col"
-            >
+        {/* Continuous Gallery Collection - strictly follows admin order */}
+        {gallery.length === 0 ? (
+          <div className="text-center py-16 px-4 bg-white/50 dark:bg-white/5 rounded-2xl border border-dashed border-[#E6D4BA] dark:border-white/10 max-w-lg mx-auto">
+            <p className="text-sm font-semibold text-[#79746D] dark:text-gray-300">
+              Salon photos will appear here once added by our admin team.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {gallery.map((item) => (
+              <div
+                key={item.id}
+                onClick={() => setActiveItem(item)}
+                className="group relative rounded-2xl overflow-hidden cursor-pointer bg-white dark:bg-[#1C1B1A] border border-[#E6D4BA]/60 dark:border-white/10 shadow-xs hover:shadow-xl transition-all flex flex-col"
+              >
               <div className="relative aspect-[4/3] overflow-hidden bg-gray-100 dark:bg-gray-800">
                 <img
                   src={item.imageUrl}
@@ -189,7 +170,8 @@ export const GallerySection: React.FC<GallerySectionProps> = ({ gallery, setting
             </div>
           ))}
         </div>
-      </div>
+      )}
+    </div>
 
       {/* Lightbox Modal */}
       {activeItem && (

@@ -31,7 +31,7 @@ import {
   EyeOff
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import { Service, ServiceCategory, DayAvailabilityResponse, Appointment, SiteSettings, BusinessHoursDay, BlockedDate, StaffMember } from '../types/index.ts';
+import { Service, ServiceCategory, DayAvailabilityResponse, Appointment, SiteSettings, BusinessHoursDay, BlockedDate, StaffMember, formatServicePrice } from '../types/index.ts';
 import { api, setCustomerToken, getCustomerToken } from '../api.ts';
 import { generateWhatsAppBookingCard, generateCustomerInquiryWhatsAppMessage, openAdminWhatsApp } from '../utils/whatsapp.ts';
 import { formatTime12, formatTimeRange12, formatDateIST } from '../utils/timeFormat.ts';
@@ -1143,7 +1143,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                               {service.durationMinutes}m
                             </span>
                             <span className="font-bold text-[#1C1B1A] dark:text-white tabular-nums">
-                              ₹{service.price}
+                              {formatServicePrice(service)}
                             </span>
                           </div>
                         </div>
@@ -1222,7 +1222,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                               </span>
                               <span className="text-gray-300 dark:text-gray-600">·</span>
                               <span className="font-bold text-[#1C1B1A] dark:text-white tabular-nums">
-                                ₹{service.price}
+                                {formatServicePrice(service)}
                               </span>
                             </div>
                           </div>
@@ -1279,7 +1279,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                     <p className="font-bold text-[#1C1B1A] dark:text-white">{selectedService.name}</p>
                   </div>
                   <div className="text-right">
-                    <p className="font-bold text-[#1C1B1A] dark:text-white tabular-nums">₹{selectedService.price}</p>
+                    <p className="font-bold text-[#1C1B1A] dark:text-white tabular-nums">{formatServicePrice(selectedService)}</p>
                     <span className="text-[10px] text-[#79746D] dark:text-gray-400">{selectedService.durationMinutes} mins</span>
                   </div>
                 </div>
@@ -1433,7 +1433,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                     <p className="font-bold text-[#1C1B1A] dark:text-white">{selectedService.name}</p>
                   </div>
                   <div className="text-right">
-                    <p className="font-bold text-[#1C1B1A] dark:text-white tabular-nums">₹{selectedService.price}</p>
+                    <p className="font-bold text-[#1C1B1A] dark:text-white tabular-nums">{formatServicePrice(selectedService)}</p>
                     <p className="text-[#79746D] dark:text-gray-400">{selectedService.durationMinutes} mins</p>
                   </div>
                 </div>
@@ -1833,7 +1833,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                     Appointment Summary
                   </span>
                   <span className="text-xs font-bold text-[#1C1B1A] dark:text-white tabular-nums">
-                    ₹{selectedService?.price}
+                    {formatServicePrice(selectedService)}
                   </span>
                 </div>
 

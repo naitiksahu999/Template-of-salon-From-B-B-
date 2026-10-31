@@ -432,15 +432,63 @@ export async function syncServicesToSupabase(services: Service[]): Promise<Supab
       image_url: s.imageUrl || null,
       is_active: s.isActive ?? true,
       is_featured: s.isFeatured ?? false,
+      price_type: s.priceType || 'exact',
+      min_price: s.minPrice != null ? s.minPrice : null,
+      max_price: s.maxPrice != null ? s.maxPrice : null,
       updated_at: s.updatedAt || new Date().toISOString()
     }));
 
-    const { error } = await client.from('services').upsert(payload, { onConflict: 'id' });
+    let { error } = await client.from('services').upsert(payload, { onConflict: 'id' });
+    if (error && (error.message.includes('price_type') || error.message.includes('min_price') || error.message.includes('max_price') || error.message.includes('column'))) {
+      // Fallback without new columns if cloud table schema has not yet been altered
+      const basePayload = payload.map(({ price_type, min_price, max_price, ...rest }) => rest);
+      const res = await client.from('services').upsert(basePayload, { onConflict: 'id' });
+      error = res.error;
+    }
+
     if (!error) {
       console.log(`[Supabase] Successfully synced ${services.length} services to Supabase.`);
       return { synced: true, table: 'services' };
     }
     return { synced: false, error: error.message };
+  } catch (err: any) {
+    return { synced: false, error: err.message };
+  }
+}
+
+/**
+ * Syncs service categories to Supabase
+ */
+export async function syncCategoriesToSupabase(categories: ServiceCategory[]): Promise<SupabaseSyncResult> {
+  const client = getSupabase();
+  if (!client || !categories || categories.length === 0) {
+    return { synced: false, error: 'Supabase client not configured or empty categories' };
+  }
+
+  try {
+    const payload = categories.map((c) => ({
+      id: c.id,
+      name: c.name,
+      slug: c.slug || c.id.replace('cat_', ''),
+      description: c.description || '',
+      sort_order: c.sortOrder || 1
+    }));
+
+    // Try primary categories table
+    const { error } = await client.from('categories').upsert(payload, { onConflict: 'id' });
+    if (!error) {
+      console.log(`[Supabase] Successfully synced ${categories.length} categories to Supabase.`);
+      return { synced: true, table: 'categories' };
+    }
+
+    // Try alternate service_categories table
+    const { error: altError } = await client.from('service_categories').upsert(payload, { onConflict: 'id' });
+    if (!altError) {
+      console.log(`[Supabase] Successfully synced ${categories.length} categories to service_categories table.`);
+      return { synced: true, table: 'service_categories' };
+    }
+
+    return { synced: false, error: error.message || altError?.message };
   } catch (err: any) {
     return { synced: false, error: err.message };
   }
@@ -824,12 +872,19 @@ CREATE TABLE IF NOT EXISTS public.services (
     name TEXT NOT NULL,
     description TEXT,
     price NUMERIC NOT NULL DEFAULT 0,
+    price_type TEXT DEFAULT 'exact',
+    min_price NUMERIC,
+    max_price NUMERIC,
     duration_minutes INTEGER NOT NULL DEFAULT 30,
     image_url TEXT,
     is_active BOOLEAN DEFAULT true,
     is_featured BOOLEAN DEFAULT false,
     updated_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now())
 );
+
+ALTER TABLE public.services ADD COLUMN IF NOT EXISTS price_type TEXT DEFAULT 'exact';
+ALTER TABLE public.services ADD COLUMN IF NOT EXISTS min_price NUMERIC;
+ALTER TABLE public.services ADD COLUMN IF NOT EXISTS max_price NUMERIC;
 
 ALTER TABLE public.services ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Allow public all services" ON public.services;
@@ -1015,6 +1070,11 @@ ALTER TABLE public.appointments ADD COLUMN IF NOT EXISTS stylist_name TEXT;
 ALTER TABLE public.appointments ADD COLUMN IF NOT EXISTS cancellation_reason TEXT;
 ALTER TABLE public.appointments ADD COLUMN IF NOT EXISTS cancelled_at TIMESTAMPTZ;
 ALTER TABLE public.appointments ADD COLUMN IF NOT EXISTS cancelled_by TEXT;
+
+-- 1b. Extend services table with Exact/Range pricing support
+ALTER TABLE public.services ADD COLUMN IF NOT EXISTS price_type TEXT DEFAULT 'exact';
+ALTER TABLE public.services ADD COLUMN IF NOT EXISTS min_price NUMERIC;
+ALTER TABLE public.services ADD COLUMN IF NOT EXISTS max_price NUMERIC;
 
 -- 2. Create persistent Admin Notifications table
 CREATE TABLE IF NOT EXISTS public.admin_notifications (

@@ -22,13 +22,38 @@ export interface Service {
   categoryId: string;
   name: string;
   description: string;
-  price: number; // in INR
+  price: number; // in INR (effective or starting price)
   durationMinutes: number;
   imageUrl?: string;
   isActive: boolean;
   isFeatured: boolean;
   createdAt: string;
   updatedAt?: string;
+  priceType?: 'exact' | 'range';
+  minPrice?: number;
+  maxPrice?: number;
+}
+
+/**
+ * Formats a service's price for display:
+ * Exact: "₹300"
+ * Range: "₹250 – ₹500"
+ */
+export function formatServicePrice(
+  service?: { price?: number; priceType?: string; minPrice?: number; maxPrice?: number } | number | null
+): string {
+  if (service == null) return '';
+  if (typeof service === 'number') {
+    return `₹${service}`;
+  }
+  if (
+    service.priceType === 'range' &&
+    typeof service.minPrice === 'number' &&
+    typeof service.maxPrice === 'number'
+  ) {
+    return `₹${service.minPrice} – ₹${service.maxPrice}`;
+  }
+  return `₹${service.price ?? 0}`;
 }
 
 export interface Customer {

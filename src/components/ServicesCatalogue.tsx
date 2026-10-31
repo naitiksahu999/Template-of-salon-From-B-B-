@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Clock, Search, Sparkles, Check, ArrowRight, ArrowLeftRight, LayoutGrid } from 'lucide-react';
-import { Service, ServiceCategory } from '../types/index.ts';
+import { Service, ServiceCategory, formatServicePrice } from '../types/index.ts';
 
 interface ServicesCatalogueProps {
   services: Service[];
@@ -196,7 +196,7 @@ export const ServicesCatalogue: React.FC<ServicesCatalogueProps> = ({
                             </h3>
                             <div className="flex items-center justify-between gap-2 mt-1.5">
                               <span className="inline-block font-bold text-xs text-[#9C753D] dark:text-[#C29F67] bg-[#FAF7F2] dark:bg-white/10 px-2 py-0.5 rounded-md border border-[#E6D4BA]/50 dark:border-white/10 tabular-nums">
-                                ₹{service.price}
+                                {formatServicePrice(service)}
                               </span>
                               <span className="flex items-center gap-1 text-[11px] text-[#79746D] dark:text-gray-400 font-medium">
                                 <Clock className="w-3 h-3 text-[#9C753D] dark:text-[#C29F67]" />
@@ -271,7 +271,7 @@ export const ServicesCatalogue: React.FC<ServicesCatalogueProps> = ({
                             {service.name}
                           </h4>
                           <span className="font-bold text-xs text-[#9C753D] dark:text-[#C29F67] tabular-nums shrink-0 bg-[#FAF7F2] dark:bg-white/10 px-2 py-0.5 rounded-md border border-[#E6D4BA]/50 dark:border-white/10">
-                            ₹{service.price}
+                            {formatServicePrice(service)}
                           </span>
                         </div>
                         <p className="text-xs text-[#79746D] dark:text-gray-400 line-clamp-2 leading-relaxed mb-3">
@@ -332,7 +332,7 @@ export const ServicesCatalogue: React.FC<ServicesCatalogueProps> = ({
                         {service.name}
                       </h3>
                       <span className="font-bold text-base text-[#1C1B1A] dark:text-white tabular-nums whitespace-nowrap">
-                        ₹{service.price}
+                        {formatServicePrice(service)}
                       </span>
                     </div>
 
