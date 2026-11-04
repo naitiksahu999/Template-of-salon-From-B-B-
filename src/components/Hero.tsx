@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calendar, ArrowRight, Star, Clock, MapPin, Sparkles } from 'lucide-react';
+import { Calendar, ArrowRight, Star, Clock, MapPin, Sparkles, Heart, Leaf, Scissors } from 'lucide-react';
 import { SiteSettings, BusinessHoursDay } from '../types/index.ts';
 
 interface HeroProps {
@@ -10,10 +10,8 @@ interface HeroProps {
 }
 
 export const Hero: React.FC<HeroProps> = ({ onOpenBooking, onExploreServices, settings, businessHours = [] }) => {
-  const salonTitle = settings?.salonName || 'B & B Family Salon';
-  const salonTagline = settings?.tagline || 'The Art of Refined Grooming & Beauty Sanctuary in Bhopal';
-  const salonLandmarks = settings?.landmarks || 'Near Sagar Gaire, Kolar Rd';
-  const salonAddress = settings?.address || '2nd Floor, Ultimate Arcade, F11-12, Kolar Road';
+  const salonTitle = settings?.salonName || 'Tassel Unisex Salon';
+  const salonAddress = settings?.address || 'Kolar Road, Good Shapard Kalan, Mandakini Colony';
 
   // Compute live operating hours from businessHours
   const formatTimeStr = (t?: string) => {
@@ -30,8 +28,6 @@ export const Hero: React.FC<HeroProps> = ({ onOpenBooking, onExploreServices, se
   const openDaysCount = businessHours.filter((b) => b.isOpen).length;
 
   let hoursDisplayText = 'Open 7 Days a Week (10 AM – 9 PM)';
-  let hoursSubtext = 'Instant appointments with live WhatsApp confirmations';
-
   if (businessHours.length > 0) {
     const firstOpen = businessHours.find((b) => b.isOpen);
     if (firstOpen) {
@@ -40,123 +36,180 @@ export const Hero: React.FC<HeroProps> = ({ onOpenBooking, onExploreServices, se
       const daysText = openDaysCount === 7 ? 'Open 7 Days a Week' : `Open ${openDaysCount} Days a Week`;
       hoursDisplayText = `${daysText} (${openFormatted} – ${closeFormatted})`;
     }
-    if (todaySchedule) {
-      hoursSubtext = todaySchedule.isOpen
-        ? `Today: Open ${formatTimeStr(todaySchedule.openTime)} – ${formatTimeStr(todaySchedule.closeTime)}`
-        : 'Closed Today · Walk-ins & advance bookings welcome';
-    }
   }
 
+  const heroImage = settings?.heroBannerUrl || '/assets/images/hero_salon_interior_1790779465939.jpg';
+
   return (
-    <section className="relative overflow-hidden pt-8 pb-16 lg:py-20 bg-[#FBFBFA] dark:bg-[#141312] transition-colors">
+    <section className="relative overflow-hidden pt-8 sm:pt-12 pb-16 lg:pb-24 bg-[#FAF6F0] dark:bg-[#181514] text-[#2B2523] dark:text-[#F5EDE6] transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* CENTER-ALIGNED BIG BOLD SALON HEADING */}
-        <div className="text-center max-w-4xl mx-auto mb-10 sm:mb-14">
-          <div className="inline-flex items-center gap-2 text-xs font-bold text-[#9C753D] dark:text-[#C29F67] uppercase tracking-widest mb-3 bg-[#FAF7F2] dark:bg-white/5 border border-[#E6D4BA]/60 dark:border-white/10 px-3.5 py-1.5 rounded-full shadow-2xs">
-            <Star className="w-3.5 h-3.5 fill-[#C29F67] text-[#C29F67]" />
-            <span>{settings?.heroBadge || `4.9 / 5.0 Google Verified Luxury Sanctuary · ${settings?.city || 'Bhopal'}`}</span>
+        {/* Main 2-Column Hero Section matching reference photo */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
+          {/* Left Column: Editorial Headline & Actions */}
+          <div className="lg:col-span-6 space-y-6">
+            {/* Kicker label */}
+            <div className="inline-block">
+              <span className="text-[11px] sm:text-xs uppercase tracking-[0.22em] font-bold text-[#B86546] dark:text-[#D6AFA0] block">
+                {settings?.heroBadge || 'WHERE CONFIDENCE BLOSSOMS'}
+              </span>
+            </div>
+
+            {/* Editorial Serif Heading matching photo */}
+            <h1 className="font-serif text-4xl sm:text-6xl md:text-7xl lg:text-7xl xl:text-8xl text-[#2B2523] dark:text-white leading-[1.08] tracking-tight">
+              Healthy Hair.<br />
+              Beautiful You.<br />
+              <span className="text-[#B86546] dark:text-[#D6AFA0] italic font-normal">Every Day.</span>
+            </h1>
+
+            {/* Thin Warm Line Accent */}
+            <div className="w-14 h-0.5 bg-[#B86546]/60 dark:bg-[#D6AFA0]/60" />
+
+            {/* Subtitle & Value Proposition */}
+            <p className="text-sm sm:text-base text-[#665B55] dark:text-gray-300 max-w-lg leading-relaxed font-medium">
+              {settings?.heroSubtitle || (
+                <>Expert care. Personalized treatments. Effortless beauty that lasts. Welcome to <strong className="text-[#2B2523] dark:text-white font-bold">{salonTitle}</strong> at Mandakini Colony, Kolar Road, Bhopal.</>
+              )}
+            </p>
+
+            {/* CTAs */}
+            <div className="flex flex-wrap items-center gap-3.5 pt-2">
+              <button
+                type="button"
+                onClick={onOpenBooking}
+                className="px-7 py-3.5 bg-[#B86546] hover:bg-[#A25336] text-white text-xs uppercase tracking-wider font-bold rounded-md shadow-md hover:shadow-lg transition-all flex items-center gap-2.5 cursor-pointer active:scale-98"
+              >
+                <span>Book Your Experience</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+              <button
+                type="button"
+                onClick={onExploreServices}
+                className="px-6 py-3.5 bg-white dark:bg-white/10 hover:bg-[#F4EAE1] dark:hover:bg-white/15 text-[#2B2523] dark:text-white border border-[#E8DDD3] dark:border-white/15 text-xs uppercase tracking-wider font-bold rounded-md transition-colors flex items-center gap-2 cursor-pointer shadow-2xs"
+              >
+                <span>View All Services</span>
+              </button>
+            </div>
+
+            {/* Social Proof (Avatar cluster + ratings) */}
+            <div className="flex items-center gap-3 pt-3">
+              <div className="flex -space-x-2">
+                <img
+                  src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80"
+                  alt="Client"
+                  className="w-9 h-9 rounded-full object-cover border-2 border-[#FAF6F0] dark:border-[#181514]"
+                />
+                <img
+                  src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=120&q=80"
+                  alt="Client"
+                  className="w-9 h-9 rounded-full object-cover border-2 border-[#FAF6F0] dark:border-[#181514]"
+                />
+                <img
+                  src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=120&q=80"
+                  alt="Client"
+                  className="w-9 h-9 rounded-full object-cover border-2 border-[#FAF6F0] dark:border-[#181514]"
+                />
+              </div>
+              <div className="text-xs">
+                <p className="font-bold text-[#2B2523] dark:text-white leading-tight">Loved by 500+ clients</p>
+                <div className="flex items-center gap-1 text-[#B86546] dark:text-[#D6AFA0] mt-0.5">
+                  <span className="tracking-widest">★★★★★</span>
+                  <span className="text-[11px] font-semibold text-[#665B55] dark:text-gray-400">4.9/5 (120+ reviews)</span>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <h1 className="text-center font-serif font-black tracking-tight text-3xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl text-[#1C1B1A] dark:text-white uppercase leading-tight sm:leading-[1.04] break-words">
-            {salonTitle}
-          </h1>
-
-          <p className="text-center text-base sm:text-xl lg:text-2xl font-bold text-[#9C753D] dark:text-[#E6D4BA] max-w-3xl mx-auto mt-3 tracking-wide">
-            {settings?.heroHeadline || salonTagline}
-          </p>
-
-          <p className="text-center text-xs sm:text-sm lg:text-base font-medium text-[#79746D] dark:text-gray-300 max-w-2xl mx-auto mt-2.5 sm:mt-3 leading-relaxed">
-            {settings?.heroSubtitle || (
-              <>Welcome to <strong className="text-[#1C1B1A] dark:text-white font-bold">{salonTitle}</strong> — A serene sanctuary offering precision haircuts, restorative skin therapies, and couture bridal artistry at <span className="font-semibold text-[#1C1B1A] dark:text-white">{salonAddress}</span> ({salonLandmarks}).</>
-            )}
-          </p>
-
-          {/* Central CTAs */}
-          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-3.5 pt-5 sm:pt-6">
-            <button
-              type="button"
-              onClick={onOpenBooking}
-              className="w-full sm:w-auto px-7 sm:px-8 py-3.5 bg-[#1C1B1A] dark:bg-[#C29F67] hover:bg-[#2A2826] dark:hover:bg-[#B38C4F] text-white text-xs uppercase tracking-wider font-bold rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2.5 cursor-pointer active:scale-98"
-            >
-              <Calendar className="w-4 h-4 text-[#C29F67] dark:text-[#1C1B1A]" />
-              <span>Book Appointment Now</span>
-            </button>
-            <button
-              type="button"
-              onClick={onExploreServices}
-              className="w-full sm:w-auto px-6 sm:px-7 py-3.5 bg-white dark:bg-white/10 hover:bg-[#FAF7F2] dark:hover:bg-white/15 text-[#1C1B1A] dark:text-white border border-[#E6D4BA]/90 dark:border-white/20 text-xs uppercase tracking-wider font-bold rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-2xs active:scale-98"
-            >
-              <span>Explore Services & Menu</span>
-              <ArrowRight className="w-4 h-4 text-[#9C753D] dark:text-[#C29F67]" />
-            </button>
-          </div>
-        </div>
-
-        {/* Feature & Ambience Showcase Grid - Visual First on Mobile for Instant Engagement */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center pt-2">
-          {/* Right Column: Hero Showcase Image (order-1 on mobile, order-2 on lg) */}
-          <div className="order-1 lg:order-2 lg:col-span-7">
-            <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-[#E6D4BA]/80 dark:border-white/10 bg-[#FAF7F2] dark:bg-white/5 group">
+          {/* Right Column: Architectural Arched Frame with Circular Artisan Stamp */}
+          <div className="lg:col-span-6 relative flex justify-center">
+            {/* The Arched Portal Frame inspired by the reference photo */}
+            <div className="relative w-full max-w-[460px] aspect-[3/4] sm:aspect-[4/5] rounded-t-[140px] sm:rounded-t-[200px] lg:rounded-t-[240px] rounded-b-3xl overflow-hidden shadow-2xl border-4 border-white/80 dark:border-white/10 bg-white/50 dark:bg-white/5">
               <img
-                src={settings?.heroBannerUrl || "/assets/images/hero_salon_interior_1790779465939.jpg"}
-                alt="Interior view of B&B Family Salon featuring luxury styling stations and ambient lighting"
+                src={heroImage}
+                alt="Stylist crafting luxury hair treatment at Tassel Unisex Salon, Bhopal"
                 referrerPolicy="no-referrer"
                 onError={(e) => {
                   e.currentTarget.onerror = null;
-                  e.currentTarget.src = 'https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=1200&q=80';
+                  e.currentTarget.src = '/assets/images/hero_salon_interior_1790779465939.jpg';
                 }}
-                className="w-full aspect-[16/10] sm:aspect-[16/9] lg:aspect-[16/10] object-cover object-center transition-transform duration-700 group-hover:scale-105"
+                className="w-full h-full object-cover object-center transition-transform duration-700 hover:scale-105"
                 loading="eager"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent" />
-              <div className="absolute bottom-3.5 sm:bottom-5 left-3.5 sm:left-5 right-3.5 sm:right-5 text-white">
-                <span className="text-[10px] sm:text-[11px] uppercase tracking-wider text-[#E6D4BA] font-bold">
-                  B&B Salon Sanctuary Ambience
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+
+              {/* Bottom Subtle Location Badge */}
+              <div className="absolute bottom-4 left-4 right-4 text-white text-xs pointer-events-none">
+                <span className="text-[10px] uppercase tracking-wider text-[#F4EAE1] font-bold block">
+                  Tassel Salon Sanctuary
                 </span>
-                <p className="text-xs sm:text-base font-bold text-white/95 mt-0.5 leading-snug">
-                  Ergonomic styling chairs & halo vanity mirrors at Ultimate Arcade, Kolar Road
-                </p>
+                <span className="font-semibold text-white/95 text-xs truncate block">
+                  Mandakini Colony, Kolar Road, Bhopal
+                </span>
               </div>
+            </div>
+
+            {/* Circular Artisan Stamp floating at the bottom right corner (from photo) */}
+            <div className="absolute -bottom-4 right-4 sm:right-6 lg:-right-4 w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-[#B86546] text-white flex flex-col items-center justify-center p-2 shadow-xl border-2 border-white/60 dark:border-[#181514] select-none pointer-events-none transform rotate-6">
+              <Leaf className="w-5 h-5 text-[#F4EAE1] mb-0.5" />
+              <span className="text-[8px] sm:text-[9px] uppercase tracking-widest font-black leading-tight text-center">
+                TASSEL<br />SALON
+              </span>
+              <span className="text-[7px] text-[#F4EAE1] tracking-wider mt-0.5">EST. BHOPAL</span>
             </div>
           </div>
+        </div>
 
-          {/* Left Column: Trust Proof Highlights (order-2 on mobile, order-1 on lg) */}
-          <div className="order-2 lg:order-1 lg:col-span-5 space-y-3 sm:space-y-4">
-            <div className="p-4 sm:p-5 bg-white dark:bg-[#1C1B1A] border border-[#E6D4BA]/70 dark:border-white/10 rounded-2xl shadow-xs">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-[#FAF7F2] dark:bg-white/5 flex items-center justify-center text-[#9C753D] shrink-0">
-                  <Sparkles className="w-5 h-5 text-[#C29F67]" />
-                </div>
-                <div className="min-w-0">
-                  <h3 className="font-bold text-[#1C1B1A] dark:text-white text-xs sm:text-sm truncate sm:whitespace-normal">Unisex & Dedicated Family Zones</h3>
-                  <p className="text-[11px] sm:text-xs text-[#79746D] dark:text-gray-400 mt-0.5 font-medium leading-relaxed">Separate styling chairs & private hygienic aesthetic suites</p>
-                </div>
-              </div>
+        {/* 4 Feature Highlights Row (Directly matching the 4 icon pillars in the photo) */}
+        <div className="mt-14 sm:mt-20 pt-8 sm:pt-10 border-t border-[#E8DDD3] dark:border-white/10 grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+          {/* Pillar 1: Premium Products */}
+          <div className="text-center sm:text-left space-y-2">
+            <div className="w-10 h-10 rounded-full bg-[#F4EAE1] dark:bg-white/5 flex items-center justify-center text-[#B86546] dark:text-[#D6AFA0] mx-auto sm:mx-0">
+              <Leaf className="w-5 h-5" />
             </div>
+            <h3 className="font-serif font-bold text-base sm:text-lg text-[#2B2523] dark:text-white">
+              Premium Products
+            </h3>
+            <p className="text-xs text-[#665B55] dark:text-gray-400 leading-relaxed font-medium">
+              We use high-quality, international hair & skin formulations for lasting health and shine.
+            </p>
+          </div>
 
-            <div className="p-4 sm:p-5 bg-white dark:bg-[#1C1B1A] border border-[#E6D4BA]/70 dark:border-white/10 rounded-2xl shadow-xs">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-[#FAF7F2] dark:bg-white/5 flex items-center justify-center text-[#9C753D] shrink-0">
-                  <Clock className="w-5 h-5 text-[#C29F67]" />
-                </div>
-                <div className="min-w-0">
-                  <h3 className="font-bold text-[#1C1B1A] dark:text-white text-xs sm:text-sm truncate sm:whitespace-normal">{hoursDisplayText}</h3>
-                  <p className="text-[11px] sm:text-xs text-[#79746D] dark:text-gray-400 mt-0.5 font-medium leading-relaxed">{hoursSubtext}</p>
-                </div>
-              </div>
+          {/* Pillar 2: Expert Stylists */}
+          <div className="text-center sm:text-left space-y-2">
+            <div className="w-10 h-10 rounded-full bg-[#F4EAE1] dark:bg-white/5 flex items-center justify-center text-[#B86546] dark:text-[#D6AFA0] mx-auto sm:mx-0">
+              <Sparkles className="w-5 h-5" />
             </div>
+            <h3 className="font-serif font-bold text-base sm:text-lg text-[#2B2523] dark:text-white">
+              Expert Stylists
+            </h3>
+            <p className="text-xs text-[#665B55] dark:text-gray-400 leading-relaxed font-medium">
+              Highly trained professionals passionate about hair craft, restorative skin, and modern cuts.
+            </p>
+          </div>
 
-            <div className="p-4 sm:p-5 bg-white dark:bg-[#1C1B1A] border border-[#E6D4BA]/70 dark:border-white/10 rounded-2xl shadow-xs">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-[#FAF7F2] dark:bg-white/5 flex items-center justify-center text-[#9C753D] shrink-0">
-                  <MapPin className="w-5 h-5 text-[#C29F67]" />
-                </div>
-                <div className="min-w-0">
-                  <h3 className="font-bold text-[#1C1B1A] dark:text-white text-xs sm:text-sm truncate sm:whitespace-normal">Ultimate Arcade, Kolar Road</h3>
-                  <p className="text-[11px] sm:text-xs text-[#79746D] dark:text-gray-400 mt-0.5 font-medium leading-relaxed">{salonLandmarks}, Bhopal (Pincode: {settings?.pincode || '462042'})</p>
-                </div>
-              </div>
+          {/* Pillar 3: Personalized Care */}
+          <div className="text-center sm:text-left space-y-2">
+            <div className="w-10 h-10 rounded-full bg-[#F4EAE1] dark:bg-white/5 flex items-center justify-center text-[#B86546] dark:text-[#D6AFA0] mx-auto sm:mx-0">
+              <Heart className="w-5 h-5" />
             </div>
+            <h3 className="font-serif font-bold text-base sm:text-lg text-[#2B2523] dark:text-white">
+              Personalized Care
+            </h3>
+            <p className="text-xs text-[#665B55] dark:text-gray-400 leading-relaxed font-medium">
+              Custom treatments tailored to your hair texture, scalp condition, and unique aesthetic goals.
+            </p>
+          </div>
+
+          {/* Pillar 4: Easy Booking */}
+          <div className="text-center sm:text-left space-y-2">
+            <div className="w-10 h-10 rounded-full bg-[#F4EAE1] dark:bg-white/5 flex items-center justify-center text-[#B86546] dark:text-[#D6AFA0] mx-auto sm:mx-0">
+              <Calendar className="w-5 h-5" />
+            </div>
+            <h3 className="font-serif font-bold text-base sm:text-lg text-[#2B2523] dark:text-white">
+              Easy Booking
+            </h3>
+            <p className="text-xs text-[#665B55] dark:text-gray-400 leading-relaxed font-medium">
+              Book online in seconds, choose your preferred stylist, and receive live WhatsApp cards.
+            </p>
           </div>
         </div>
       </div>

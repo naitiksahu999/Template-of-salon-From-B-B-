@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, ZoomIn, Eye } from 'lucide-react';
+import { X, ZoomIn, Eye, Sparkles } from 'lucide-react';
 import { GalleryItem, SiteSettings } from '../types/index.ts';
 
 interface GallerySectionProps {
@@ -44,36 +44,29 @@ export const GallerySection: React.FC<GallerySectionProps> = ({ gallery, setting
   };
 
   return (
-    <section id="gallery" className="py-20 bg-[#FAF7F2] dark:bg-[#141312] border-b border-[#E6D4BA]/30 dark:border-white/10 transition-colors">
+    <section id="gallery" className="py-20 bg-[#FAF6F0] dark:bg-[#141211] border-b border-[#E8DDD3] dark:border-white/10 transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto space-y-2 mb-10">
-          <span className="text-xs uppercase tracking-widest text-[#9C753D] dark:text-[#C29F67] font-bold">
+        <div className="text-center max-w-2xl mx-auto space-y-2 mb-12">
+          <span className="text-xs uppercase tracking-widest text-[#B86546] dark:text-[#D98263] font-bold">
             Visual Portfolio & Salon Ambience
           </span>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-black text-[#1C1B1A] dark:text-white uppercase tracking-tight">
-            The Salon Gallery
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-[#2B2523] dark:text-white">
+            The Salon <span className="italic font-normal text-[#B86546] dark:text-[#D98263]">Gallery</span>
           </h2>
-          <p className="text-sm font-medium text-[#79746D] dark:text-gray-300">
+          <p className="text-sm font-medium text-[#665B55] dark:text-gray-300">
             Explore our styling workstations, comfortable client suites, and artistry across hair, skin, and makeup.
           </p>
         </div>
 
-        {/* Continuous Gallery Collection - strictly follows admin order */}
-        {gallery.length === 0 ? (
-          <div className="text-center py-16 px-4 bg-white/50 dark:bg-white/5 rounded-2xl border border-dashed border-[#E6D4BA] dark:border-white/10 max-w-lg mx-auto">
-            <p className="text-sm font-semibold text-[#79746D] dark:text-gray-300">
-              Salon photos will appear here once added by our admin team.
-            </p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {gallery.map((item) => (
-              <div
-                key={item.id}
-                onClick={() => setActiveItem(item)}
-                className="group relative rounded-2xl overflow-hidden cursor-pointer bg-white dark:bg-[#1C1B1A] border border-[#E6D4BA]/60 dark:border-white/10 shadow-xs hover:shadow-xl transition-all flex flex-col"
-              >
-              <div className="relative aspect-[4/3] overflow-hidden bg-gray-100 dark:bg-gray-800">
+        {/* Continuous vertically scrollable gallery strictly following admin order */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {gallery.map((item) => (
+            <div
+              key={item.id}
+              onClick={() => setActiveItem(item)}
+              className="group relative rounded-3xl overflow-hidden cursor-pointer bg-[#FDFBF7] dark:bg-[#1A1716] border border-[#E8DDD3] dark:border-white/10 shadow-2xs hover:shadow-xl hover:border-[#B86546]/40 transition-all flex flex-col"
+            >
+              <div className="relative aspect-[4/3] overflow-hidden bg-[#F4EDE4] dark:bg-stone-800">
                 <img
                   src={item.imageUrl}
                   alt={item.title}
@@ -89,7 +82,7 @@ export const GallerySection: React.FC<GallerySectionProps> = ({ gallery, setting
                 {/* OVERLAY-CENTER ARRANGEMENT */}
                 {textArrangement === 'overlay-center' && (
                   <div className="absolute inset-0 bg-black/60 backdrop-blur-2xs flex flex-col items-center justify-center p-6 text-center text-white">
-                    <span className="text-[10px] uppercase font-bold tracking-widest text-[#E6D4BA] bg-white/10 px-2.5 py-0.5 rounded-full mb-1.5 border border-[#C29F67]/40">
+                    <span className="text-[10px] uppercase font-bold tracking-widest text-[#F4EAE1] bg-[#B86546]/80 px-2.5 py-0.5 rounded-full mb-1.5 border border-white/20">
                       {item.category}
                     </span>
                     <h4 className={`${getTitleClass()} text-white font-serif`}>
@@ -100,7 +93,7 @@ export const GallerySection: React.FC<GallerySectionProps> = ({ gallery, setting
                         {item.description}
                       </p>
                     )}
-                    <span className="mt-3 inline-flex items-center gap-1.5 text-xs text-[#E6D4BA] font-bold">
+                    <span className="mt-3 inline-flex items-center gap-1.5 text-xs text-[#F4EAE1] font-bold">
                       <ZoomIn className="w-3.5 h-3.5" /> Tap to expand
                     </span>
                   </div>
@@ -109,7 +102,7 @@ export const GallerySection: React.FC<GallerySectionProps> = ({ gallery, setting
                 {/* OVERLAY-BOTTOM ARRANGEMENT */}
                 {textArrangement === 'overlay-bottom' && (
                   <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent flex flex-col justify-end p-5 text-white">
-                    <span className="text-[10px] uppercase font-bold text-[#E6D4BA] tracking-wider">
+                    <span className="text-[10px] uppercase font-bold text-[#D98263] tracking-wider">
                       {item.category}
                     </span>
                     <h4 className={`${getTitleClass()} text-white font-serif mt-0.5`}>
@@ -120,7 +113,7 @@ export const GallerySection: React.FC<GallerySectionProps> = ({ gallery, setting
                         {item.description}
                       </p>
                     )}
-                    <div className="flex items-center gap-1.5 text-xs text-[#E6D4BA] font-bold mt-2.5">
+                    <div className="flex items-center gap-1.5 text-xs text-[#F4EAE1] font-bold mt-2.5">
                       <ZoomIn className="w-3.5 h-3.5" />
                       <span>Click to view photo</span>
                     </div>
@@ -130,7 +123,7 @@ export const GallerySection: React.FC<GallerySectionProps> = ({ gallery, setting
                 {/* BADGE-MINIMAL ARRANGEMENT */}
                 {textArrangement === 'badge-minimal' && (
                   <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none">
-                    <span className="text-[10px] uppercase font-bold bg-[#1C1B1A]/80 backdrop-blur-xs text-white px-2.5 py-1 rounded-md border border-white/20">
+                    <span className="text-[10px] uppercase font-bold bg-[#B86546] text-white px-2.5 py-1 rounded-md border border-white/20 shadow-xs">
                       {item.category}
                     </span>
                     <span className="w-7 h-7 rounded-full bg-black/60 backdrop-blur-xs text-white flex items-center justify-center shadow-xs">
@@ -142,26 +135,26 @@ export const GallerySection: React.FC<GallerySectionProps> = ({ gallery, setting
 
               {/* CARD-BELOW ARRANGEMENT (Always visible clean card underneath photo) */}
               {(textArrangement === 'card-below' || textArrangement === 'badge-minimal') && (
-                <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between border-t border-[#E6D4BA]/40 dark:border-white/10">
+                <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between border-t border-[#E8DDD3] dark:border-white/10">
                   <div>
                     <div className="flex items-center justify-between gap-2 mb-1.5">
-                      <span className="text-[10px] uppercase font-bold text-[#9C753D] dark:text-[#C29F67] bg-[#FAF7F2] dark:bg-white/5 px-2 py-0.5 rounded-sm border border-[#E6D4BA]/60 dark:border-white/10">
+                      <span className="text-[10px] uppercase font-bold text-[#B86546] dark:text-[#D98263] bg-[#F4EAE1] dark:bg-white/5 px-2.5 py-0.5 rounded-sm border border-[#E8DDD3] dark:border-white/10">
                         {item.category}
                       </span>
-                      <span className="text-[11px] text-[#79746D] dark:text-gray-400 font-semibold flex items-center gap-1">
-                        <Eye className="w-3 h-3" /> View
+                      <span className="text-[11px] text-[#847771] dark:text-gray-400 font-semibold flex items-center gap-1">
+                        <Eye className="w-3 h-3 text-[#B86546]" /> View
                       </span>
                     </div>
-                    <h4 className={`${getTitleClass()} text-[#1C1B1A] dark:text-white font-serif`}>
+                    <h4 className={`${getTitleClass()} text-[#2B2523] dark:text-white font-serif`}>
                       {item.title}
                     </h4>
                     {item.description && (
-                      <p className={`${getDescClass()} text-[#79746D] dark:text-gray-400 line-clamp-2 mt-1 leading-relaxed`}>
+                      <p className={`${getDescClass()} text-[#665B55] dark:text-gray-400 line-clamp-2 mt-1 leading-relaxed`}>
                         {item.description}
                       </p>
                     )}
                   </div>
-                  <div className="mt-3 pt-2.5 border-t border-gray-100 dark:border-white/10 flex items-center justify-between text-xs text-[#9C753D] dark:text-[#C29F67] font-bold">
+                  <div className="mt-3 pt-2.5 border-t border-[#E8DDD3] dark:border-white/10 flex items-center justify-between text-xs text-[#B86546] dark:text-[#D98263] font-bold">
                     <span>Enlarge photo</span>
                     <ZoomIn className="w-3.5 h-3.5" />
                   </div>
@@ -170,8 +163,7 @@ export const GallerySection: React.FC<GallerySectionProps> = ({ gallery, setting
             </div>
           ))}
         </div>
-      )}
-    </div>
+      </div>
 
       {/* Lightbox Modal */}
       {activeItem && (
@@ -212,7 +204,7 @@ export const GallerySection: React.FC<GallerySectionProps> = ({ gallery, setting
                   <p className="text-xs text-gray-300 mt-1">{activeItem.description}</p>
                 )}
               </div>
-              <span className="text-xs text-gray-400">B&B Family Salon · Bhopal</span>
+              <span className="text-xs text-gray-400">Tassel Unisex Salon · Bhopal</span>
             </div>
           </div>
         </div>

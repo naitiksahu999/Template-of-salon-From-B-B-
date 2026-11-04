@@ -193,17 +193,17 @@ export default function App() {
         localStorage.setItem('salon_settings', JSON.stringify(cfgRes.settings));
       } else if (cfgRes) {
         const assembledSettings: SiteSettings = {
-          salonName: cfgRes.salonName || 'B & B Family Salon',
-          alternateName: cfgRes.alternateName || 'B&B Unisex Salon',
-          tagline: cfgRes.tagline || 'Premium Grooming & Beauty Sanctuary in Bhopal',
-          phone: cfgRes.phone || '+91 91316 29031',
-          email: cfgRes.email || 'contact@bbfamilysalon.com',
-          address: cfgRes.address || '2nd Floor, Ultimate Arcade, F11-12, Kolar Road',
-          landmarks: cfgRes.landmarks || 'Near Sagar Gaire & Vishal Mega Mart',
+          salonName: cfgRes.salonName || 'Tassel Unisex Salon',
+          alternateName: cfgRes.alternateName || 'Tassel Salon Bhopal',
+          tagline: cfgRes.tagline || 'Luxury Unisex Salon & Beauty Sanctuary in Bhopal',
+          phone: cfgRes.phone || '+91 78800 86990',
+          email: cfgRes.email || 'contact@tasselunisexsalon.com',
+          address: cfgRes.address || 'Kolar Road, Good Shapard Kalan, Mandakini Colony',
+          landmarks: cfgRes.landmarks || 'Mandakini Colony, Kolar Road',
           city: cfgRes.city || 'Bhopal',
           state: cfgRes.state || 'Madhya Pradesh',
           pincode: cfgRes.pincode || '462042',
-          googleMapsUrl: cfgRes.googleMapsUrl || 'https://www.google.com/maps/search/?api=1&query=B%26B+Family+Salon+Ultimate+Arcade+Kolar+Road+Bhopal',
+          googleMapsUrl: cfgRes.googleMapsUrl || 'https://www.google.co.in/maps/place/Tassel+Unisex+Salon,+Kolar+Rd,+Good+Shapard+Kalan,+Mandakini+Colony,+Kolar+Rd,+Bhopal,+Madhya+Pradesh+462042/@23.1823711,77.4175763,17z/',
           slotIntervalMinutes: 30,
           autoConfirmBookings: true,
           enableSmsNotifications: true,
@@ -231,10 +231,10 @@ export default function App() {
 
       // Check if we need to sync local storage customized state to server (container restart recovery)
       const cachedSettings = localStorage.getItem('salon_settings');
-      if (cachedSettings && (!cfgRes?.phone || cfgRes.phone === '+91 91316 29031')) {
+      if (cachedSettings && (!cfgRes?.phone || cfgRes.phone === '+91 78800 86990')) {
         try {
           const parsed = JSON.parse(cachedSettings);
-          if (parsed.phone && parsed.phone !== '+91 91316 29031') {
+          if (parsed.phone && parsed.phone !== '+91 78800 86990') {
             await api.syncState({ settings: parsed });
           }
         } catch {}
@@ -345,7 +345,7 @@ export default function App() {
         />
 
         {/* Salon Experience & Ambience Story */}
-        <SalonExperience settings={settings} />
+        <SalonExperience settings={settings} onOpenBooking={() => handleOpenBooking()} />
 
         {/* Visual Gallery with Lightbox */}
         <GallerySection gallery={gallery} settings={settings} />
@@ -445,24 +445,24 @@ export default function App() {
       />
 
       {/* Clean & Spacious Mobile Bottom Sticky Bar */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-30 px-4 py-2.5 bg-[#FAF7F2]/95 dark:bg-[#1A1918]/95 backdrop-blur-md border-t border-[#E6D4BA]/70 dark:border-white/10 shadow-xl flex items-center gap-2 pb-[max(env(safe-area-inset-bottom),0.75rem)]">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-30 px-4 py-2.5 bg-[#FAF6F0]/95 dark:bg-[#1A1716]/95 backdrop-blur-md border-t border-[#E8DDD3] dark:border-white/10 shadow-xl flex items-center gap-2 pb-[max(env(safe-area-inset-bottom),0.75rem)]">
         {/* Direct Phone Call */}
         <a
           href={`tel:${cleanPhone}`}
-          className="p-3 bg-white dark:bg-white/10 border border-[#E6D4BA]/90 dark:border-white/20 text-[#1C1B1A] dark:text-white rounded-xl flex items-center justify-center shadow-2xs shrink-0 active:scale-95 transition-transform"
+          className="p-3 bg-white dark:bg-white/10 border border-[#E8DDD3] dark:border-white/20 text-[#2B2523] dark:text-white rounded-xl flex items-center justify-center shadow-2xs shrink-0 active:scale-95 transition-transform"
           title="Call salon directly"
         >
-          <Phone className="w-4 h-4 text-[#9C753D] dark:text-[#C29F67]" />
+          <Phone className="w-4 h-4 text-[#B86546]" />
         </a>
 
         {/* Customer Account */}
         <button
           type="button"
           onClick={() => setCustomerSettingsOpen(true)}
-          className="py-3 px-3 bg-white dark:bg-white/10 border border-[#E6D4BA]/90 dark:border-white/20 text-[#1C1B1A] dark:text-white text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer whitespace-nowrap active:scale-95 transition-transform"
+          className="py-3 px-3 bg-white dark:bg-white/10 border border-[#E8DDD3] dark:border-white/20 text-[#2B2523] dark:text-white text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer whitespace-nowrap active:scale-95 transition-transform"
           title="My Bookings & Theme"
         >
-          <User className="w-4 h-4 text-[#9C753D] dark:text-[#C29F67]" />
+          <User className="w-4 h-4 text-[#B86546]" />
           <span>{customerUser ? customerUser.name.split(' ')[0] : 'Account'}</span>
         </button>
 
@@ -471,10 +471,10 @@ export default function App() {
           <button
             type="button"
             onClick={() => handleOpenAdmin('login')}
-            className="py-3 px-3 bg-[#FAF7F2] dark:bg-white/10 border border-[#C29F67] text-[#9C753D] dark:text-[#C29F67] text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer whitespace-nowrap active:scale-95 transition-transform"
+            className="py-3 px-3 bg-[#F4EAE1] dark:bg-white/10 border border-[#B86546] text-[#B86546] dark:text-[#D98263] text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer whitespace-nowrap active:scale-95 transition-transform"
             title="Switch to Admin Dashboard"
           >
-            <Sliders className="w-4 h-4 text-[#C29F67]" />
+            <Sliders className="w-4 h-4 text-[#B86546]" />
             <span>Admin</span>
           </button>
         )}
@@ -483,9 +483,9 @@ export default function App() {
         <button
           type="button"
           onClick={() => handleOpenBooking()}
-          className="flex-1 py-3 px-3.5 bg-[#1C1B1A] dark:bg-[#C29F67] hover:bg-[#2A2826] dark:hover:bg-[#B38C4F] text-white text-xs uppercase tracking-wider font-bold rounded-xl flex items-center justify-center gap-1.5 shadow-sm cursor-pointer whitespace-nowrap active:scale-95 transition-transform"
+          className="flex-1 py-3 px-3.5 bg-[#B86546] hover:bg-[#A25336] text-white text-xs uppercase tracking-wider font-bold rounded-xl flex items-center justify-center gap-1.5 shadow-md cursor-pointer whitespace-nowrap active:scale-95 transition-transform"
         >
-          <Calendar className="w-4 h-4 text-[#C29F67] dark:text-[#1C1B1A]" />
+          <Calendar className="w-4 h-4 text-white" />
           <span>Book</span>
         </button>
       </div>

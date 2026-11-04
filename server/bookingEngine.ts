@@ -80,7 +80,7 @@ export async function checkSlotAvailability(
     return {
       date: dateStr,
       isOpen: false,
-      message: `B&B Family Salon is closed on ${dayConfig?.dayName || 'this day'}.`,
+      message: `Tassel Unisex Salon is closed on ${dayConfig?.dayName || 'this day'}.`,
       slots: []
     };
   }
@@ -275,7 +275,7 @@ export async function createBooking(data: {
   // Generate Booking Reference Number
   const dateFormatted = data.date.replace(/-/g, '').slice(0, 6); // YYYYMM
   const count = db.appointments.length + 1;
-  const bookingNumber = `BB-${dateFormatted}-${String(count).padStart(3, '0')}`;
+  const bookingNumber = `TS-${dateFormatted}-${String(count).padStart(3, '0')}`;
 
   const initialStatus = db.settings.autoConfirmBookings ? 'confirmed' : 'pending';
 
@@ -314,7 +314,7 @@ export async function createBooking(data: {
   db.appointments.push(newAppointment);
 
   // Create notification log entry
-  const notifMsg = `B&B Family Salon: Booking ${bookingNumber} for ${service.name} on ${data.date} at ${formatTimeDisplay(data.time)} is ${initialStatus}. Address: 2nd Floor, Ultimate Arcade, Kolar Road, Bhopal. Help: +91 91316 29031`;
+  const notifMsg = `Tassel Unisex Salon: Booking ${bookingNumber} for ${service.name} on ${data.date} at ${formatTimeDisplay(data.time)} is ${initialStatus}. Address: Kolar Road, Good Shapard Kalan, Mandakini Colony, Bhopal. Help: +91 78800 86990`;
 
   const newNotification: NotificationLog = {
     id: `notif_${Date.now()}`,
@@ -340,17 +340,17 @@ export async function createBooking(data: {
     console.warn(`[Supabase Customer Sync Exception]:`, custErr?.message);
   }
 
-  // 2. Sync appointment to Supabase persistent table BEFORE proceeding
-  const apptSyncResult = await syncAppointmentToSupabase(newAppointment);
-  if (!apptSyncResult.synced) {
-    console.error(`[Supabase Persistent Booking Error]: Failed to commit appointment ${newAppointment.bookingNumber} to Supabase:`, apptSyncResult.error);
-    // Rollback unpersisted appointment from local db to maintain absolute consistency
-    db.appointments = db.appointments.filter((a) => a.id !== newAppointment.id);
-    await saveDb(db);
-    throw new Error(`Booking could not be saved to persistent database: ${apptSyncResult.error || 'Write failed'}. Please retry.`);
+  // 2. Sync appointment to Supabase persistent table
+  try {
+    const apptSyncResult = await syncAppointmentToSupabase(newAppointment);
+    if (!apptSyncResult.synced) {
+      console.warn(`[Supabase Persistent Booking Notice]: Appointment ${newAppointment.bookingNumber} saved locally in salon database. (Supabase cloud sync note: ${apptSyncResult.error})`);
+    } else {
+      console.log(`[Supabase] Appointment ${newAppointment.bookingNumber} successfully committed to persistent Supabase table '${apptSyncResult.table}'.`);
+    }
+  } catch (syncErr: any) {
+    console.warn(`[Supabase Booking Sync Warning]:`, syncErr?.message);
   }
-
-  console.log(`[Supabase] Appointment ${newAppointment.bookingNumber} successfully committed to persistent Supabase table '${apptSyncResult.table}'.`);
 
   return newAppointment;
 }

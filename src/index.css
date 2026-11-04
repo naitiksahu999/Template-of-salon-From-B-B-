@@ -5,19 +5,28 @@
 @theme {
   --font-serif: "Cormorant Garamond", Georgia, serif;
   --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
-  --color-gold-50: #FAF7F2;
-  --color-gold-100: #F3EBDD;
-  --color-gold-200: #E6D4BA;
-  --color-gold-300: #D4B98E;
-  --color-gold-400: #C29F67;
-  --color-gold-500: #B38C4F;
-  --color-gold-600: #9C753D;
-  --color-salon-black: #121211;
-  --color-salon-charcoal: #1C1B1A;
-  --color-salon-stone: #2A2826;
-  --color-salon-muted: #79746D;
-  --color-salon-sand: #F3F1EC;
-  --color-salon-canvas: #FBFBFA;
+  --color-terracotta-50: #FAF6F1;
+  --color-terracotta-100: #F4EAE1;
+  --color-terracotta-200: #E8D3C3;
+  --color-terracotta-300: #D6AFA0;
+  --color-terracotta-400: #C38B75;
+  --color-terracotta-500: #B86546;
+  --color-terracotta-600: #A25336;
+  --color-terracotta-700: #88432A;
+  --color-terracotta-800: #6F3622;
+  --color-gold-50: #FAF6F1;
+  --color-gold-100: #F4EAE1;
+  --color-gold-200: #E8D3C3;
+  --color-gold-300: #D6AFA0;
+  --color-gold-400: #B86546;
+  --color-gold-500: #A25336;
+  --color-gold-600: #88432A;
+  --color-salon-black: #161312;
+  --color-salon-charcoal: #2B2523;
+  --color-salon-stone: #3A322F;
+  --color-salon-muted: #847771;
+  --color-salon-sand: #F4EDE4;
+  --color-salon-canvas: #FAF6F0;
 }
 
 *, *::before, *::after {
@@ -28,8 +37,8 @@
   html {
     font-family: var(--font-sans);
     scroll-behavior: smooth;
-    color: #1C1B1A;
-    background-color: #FBFBFA;
+    color: #2B2523;
+    background-color: #FAF6F0;
     width: 100%;
     max-width: 100%;
     min-height: 100%;
@@ -41,8 +50,8 @@
     text-size-adjust: 100%;
   }
   html.dark {
-    color: #F3F1EC;
-    background-color: #141312;
+    color: #F5EDE6;
+    background-color: #181514;
   }
   body {
     width: 100%;
@@ -76,27 +85,27 @@
 /* Cross-browser scrollbar support (Standard CSS + WebKit fallback) */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #C29F67 transparent;
+  scrollbar-color: #B86546 transparent;
 }
 html.dark * {
-  scrollbar-color: #C29F67 transparent;
+  scrollbar-color: #B86546 transparent;
 }
 ::-webkit-scrollbar {
   width: 7px;
   height: 7px;
 }
 ::-webkit-scrollbar-track {
-  background: #F3F1EC;
+  background: #F4EDE4;
 }
 html.dark ::-webkit-scrollbar-track {
-  background: #1C1B1A;
+  background: #231C1A;
 }
 ::-webkit-scrollbar-thumb {
-  background: #C29F67;
+  background: #B86546;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #9C753D;
+  background: #A25336;
 }
 
 /* Dedicated mobile horizontal scrollbar styling for touch devices */

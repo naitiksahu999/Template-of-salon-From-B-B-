@@ -77,48 +77,48 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
   };
 
   return (
-    <section id="reviews" className="py-20 bg-[#FBFBFA] dark:bg-[#141312] border-t border-[#E6D4BA]/30 dark:border-white/10 transition-colors">
+    <section id="reviews" className="py-20 bg-[#FAF6F0] dark:bg-[#141211] border-t border-[#E8DDD3] dark:border-white/10 transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header with Verified Rating Card */}
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-12">
           <div className="space-y-2">
-            <span className="text-xs uppercase tracking-widest text-[#9C753D] dark:text-[#C29F67] font-bold">
+            <span className="text-xs uppercase tracking-widest text-[#B86546] dark:text-[#D98263] font-bold">
               Verified Client Experiences
             </span>
-            <h2 className="text-3xl sm:text-4xl font-serif font-bold text-[#1C1B1A] dark:text-white">
-              Customer Feedback & Reviews
+            <h2 className="text-3xl sm:text-4xl font-serif font-bold text-[#2B2523] dark:text-white">
+              Customer Feedback & <span className="italic font-normal text-[#B86546] dark:text-[#D98263]">Reviews</span>
             </h2>
-            <p className="text-sm font-medium text-[#79746D] dark:text-gray-300 max-w-xl">
+            <p className="text-sm font-medium text-[#665B55] dark:text-gray-300 max-w-xl">
               Authentic feedback from local residents, families, and valued clients at our Kolar Road salon.
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-4">
             {/* Aggregate Rating Scoreboard */}
-            <div className="bg-[#FAF7F2] dark:bg-[#1C1B1A] border border-[#E6D4BA]/70 dark:border-white/10 rounded-2xl p-4 sm:p-5 flex items-center gap-5 shrink-0 shadow-xs">
-              <div className="text-center pr-4 border-r border-[#E6D4BA]/60 dark:border-white/10">
-                <span className="text-3xl sm:text-4xl font-serif font-bold text-[#1C1B1A] dark:text-white">
+            <div className="bg-[#FDFBF7] dark:bg-[#1A1716] border border-[#E8DDD3] dark:border-white/10 rounded-2xl p-4 sm:p-5 flex items-center gap-5 shrink-0 shadow-2xs">
+              <div className="text-center pr-4 border-r border-[#E8DDD3] dark:border-white/10">
+                <span className="text-3xl sm:text-4xl font-serif font-bold text-[#2B2523] dark:text-white">
                   4.9
                 </span>
-                <div className="flex items-center gap-0.5 text-[#C29F67] mt-1 justify-center">
+                <div className="flex items-center gap-0.5 text-[#B86546] mt-1 justify-center">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-3.5 h-3.5 fill-[#C29F67]" />
+                    <Star key={i} className="w-3.5 h-3.5 fill-[#B86546]" />
                   ))}
                 </div>
               </div>
               <div className="space-y-1">
-                <div className="flex items-center gap-1.5 text-xs font-bold text-[#1C1B1A] dark:text-white">
-                  <ShieldCheck className="w-4 h-4 text-[#9C753D] dark:text-[#C29F67]" />
+                <div className="flex items-center gap-1.5 text-xs font-bold text-[#2B2523] dark:text-white">
+                  <ShieldCheck className="w-4 h-4 text-[#B86546]" />
                   <span>Google & Verified Clients</span>
                 </div>
-                <p className="text-[11px] text-[#79746D] dark:text-gray-400 font-medium">
+                <p className="text-[11px] text-[#665B55] dark:text-gray-400 font-medium">
                   Authentic ratings in Bhopal
                 </p>
                 <a
-                  href="https://www.google.com/maps/search/?api=1&query=B%26B+Family+Salon+Ultimate+Arcade+Kolar+Road+Bhopal"
+                  href="https://www.google.co.in/maps/place/Tassel+Unisex+Salon,+Kolar+Rd,+Good+Shapard+Kalan,+Mandakini+Colony,+Kolar+Rd,+Bhopal,+Madhya+Pradesh+462042/@23.1823711,77.4175763,17z/"
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-1 text-[11px] font-bold text-[#9C753D] dark:text-[#C29F67] hover:underline pt-0.5"
+                  className="inline-flex items-center gap-1 text-[11px] font-bold text-[#B86546] hover:underline pt-0.5"
                 >
                   <span>View Google Listing</span>
                   <ExternalLink className="w-3 h-3" />
@@ -130,7 +130,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
             <button
               type="button"
               onClick={handleOpenModal}
-              className="px-5 py-3.5 bg-[#C29F67] hover:bg-[#B38C4F] text-white text-xs font-bold rounded-xl flex items-center gap-2 shadow-md transition-all hover:scale-[1.02] cursor-pointer whitespace-nowrap"
+              className="px-5 py-3.5 bg-[#B86546] hover:bg-[#A25336] text-white text-xs font-bold rounded-xl flex items-center gap-2 shadow-md transition-all hover:scale-[1.02] cursor-pointer whitespace-nowrap active:scale-98"
             >
               <Star className="w-4 h-4 fill-white" />
               <span>Give Your Review</span>
@@ -140,18 +140,18 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
 
         {/* Reviews Grid */}
         {reviews.length === 0 ? (
-          <div className="p-12 text-center bg-white dark:bg-[#1C1B1A] border border-[#E6D4BA]/40 dark:border-white/10 rounded-2xl max-w-md mx-auto space-y-3">
-            <Star className="w-10 h-10 text-[#C29F67] mx-auto opacity-50" />
-            <h3 className="font-serif font-bold text-lg text-[#1C1B1A] dark:text-white">
+          <div className="p-12 text-center bg-[#FDFBF7] dark:bg-[#1A1716] border border-[#E8DDD3] dark:border-white/10 rounded-3xl max-w-md mx-auto space-y-3 shadow-2xs">
+            <Star className="w-10 h-10 text-[#B86546] mx-auto opacity-50" />
+            <h3 className="font-serif font-bold text-lg text-[#2B2523] dark:text-white">
               Be the First to Leave a Review
             </h3>
-            <p className="text-xs text-[#79746D] dark:text-gray-400">
+            <p className="text-xs text-[#665B55] dark:text-gray-400">
               Share your salon experience with the Bhopal community!
             </p>
             <button
               type="button"
               onClick={handleOpenModal}
-              className="px-5 py-2.5 bg-[#C29F67] hover:bg-[#B38C4F] text-white font-bold text-xs rounded-xl cursor-pointer shadow-xs"
+              className="px-5 py-2.5 bg-[#B86546] hover:bg-[#A25336] text-white font-bold text-xs rounded-xl cursor-pointer shadow-xs"
             >
               Give Your Review
             </button>
@@ -164,33 +164,33 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
               return (
                 <div
                   key={rev.id}
-                  className="bg-white dark:bg-[#1C1B1A] border border-[#E6D4BA]/50 dark:border-white/10 rounded-2xl p-6 flex flex-col justify-between hover:shadow-md transition-shadow relative"
+                  className="bg-[#FDFBF7] dark:bg-[#1A1716] border border-[#E8DDD3] dark:border-white/10 rounded-3xl p-6 flex flex-col justify-between hover:shadow-lg transition-shadow relative"
                 >
-                  <Quote className="w-6 h-6 text-[#E6D4BA]/60 dark:text-white/10 absolute top-5 right-5" />
+                  <Quote className="w-6 h-6 text-[#E8DDD3] dark:text-white/10 absolute top-5 right-5" />
 
                   <div className="space-y-3">
                     <div className="flex items-center gap-1">
                       {[...Array(rev.rating)].map((_, i) => (
-                        <Star key={i} className="w-3.5 h-3.5 fill-[#C29F67] text-[#C29F67]" />
+                        <Star key={i} className="w-3.5 h-3.5 fill-[#B86546] text-[#B86546]" />
                       ))}
                     </div>
 
-                    <p className="text-xs text-[#1C1B1A]/85 dark:text-gray-200 leading-relaxed italic font-medium">
+                    <p className="text-xs text-[#2B2523]/90 dark:text-gray-200 leading-relaxed italic font-medium">
                       "{rev.reviewText}"
                     </p>
                   </div>
 
-                  <div className="pt-4 border-t border-gray-100 dark:border-white/10 mt-4 space-y-2">
+                  <div className="pt-4 border-t border-[#E8DDD3] dark:border-white/10 mt-4 space-y-2">
                     <div className="flex items-center justify-between text-xs">
                       <div>
-                        <h4 className="font-bold text-[#1C1B1A] dark:text-white">{rev.authorName}</h4>
-                        <span className="text-[10px] text-[#79746D] dark:text-gray-400 font-medium">
+                        <h4 className="font-bold text-[#2B2523] dark:text-white font-serif">{rev.authorName}</h4>
+                        <span className="text-[10px] text-[#665B55] dark:text-gray-400 font-medium">
                           {rev.reviewDate}
                         </span>
                       </div>
                       {rev.isVerified && (
-                        <span className="text-[10px] text-emerald-700 dark:text-emerald-400 font-semibold flex items-center gap-1">
-                          <ShieldCheck className="w-3 h-3" />
+                        <span className="text-[10px] text-emerald-800 dark:text-emerald-400 font-semibold flex items-center gap-1">
+                          <ShieldCheck className="w-3 h-3 text-emerald-700" />
                           <span>Verified</span>
                         </span>
                       )}
@@ -200,10 +200,10 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
                     <div className="pt-1">
                       <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full border ${
                         isGoogle
-                          ? 'text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/40 border-blue-200 dark:border-blue-800'
+                          ? 'text-blue-800 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/40 border-blue-200 dark:border-blue-800'
                           : rev.source?.toLowerCase().includes('insta')
-                          ? 'text-pink-700 dark:text-pink-300 bg-pink-50 dark:bg-pink-950/40 border-pink-200 dark:border-pink-800'
-                          : 'text-[#9C753D] dark:text-[#C29F67] bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800'
+                          ? 'text-pink-800 dark:text-pink-300 bg-pink-50 dark:bg-pink-950/40 border-pink-200 dark:border-pink-800'
+                          : 'text-[#B86546] dark:text-[#D98263] bg-[#F4EAE1] dark:bg-white/10 border-[#E8DDD3] dark:border-white/10'
                       }`}>
                         {isGoogle ? <MapPin className="w-3 h-3" /> : <MessageSquare className="w-3 h-3" />}
                         <span>{rev.source || 'Website Customer'}</span>

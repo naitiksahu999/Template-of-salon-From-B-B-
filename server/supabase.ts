@@ -14,10 +14,10 @@ import type {
 
 dotenv.config();
 
-// User-provided Supabase configuration
-const SUPABASE_PROJECT_ID = process.env.SUPABASE_PROJECT_ID || 'fkkbcnaazeajcnssniev';
+// Tassel Unisex Salon Supabase configuration
+const SUPABASE_PROJECT_ID = process.env.SUPABASE_PROJECT_ID || 'tdsqvwgrskexgvmexyns';
 const SUPABASE_URL = process.env.SUPABASE_URL || `https://${SUPABASE_PROJECT_ID}.supabase.co`;
-const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || 'sb_publishable_SeQLZGYpG6SU7pj8fTTRRg_bXRnqudV';
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || 'sb_publishable_ku5BwUGgZGcTjGyHxon90g_KoEVGwHq';
 
 let supabaseClient: SupabaseClient | null = null;
 
@@ -130,8 +130,6 @@ export async function syncAppointmentToSupabase(appointment: Appointment): Promi
     service_duration: appointment.serviceDuration || 30,
     appointment_date: appointment.date,
     appointment_time: appointment.time,
-    date: appointment.date,
-    time: appointment.time,
     end_time: appointment.endTime || null,
     status: appointment.status || 'confirmed',
     stylist_id: appointment.stylistId || null,
@@ -200,10 +198,10 @@ export async function syncAppointmentToSupabase(appointment: Appointment): Promi
       };
     }
 
-    console.error(`[Supabase Insert Error]:`, apptError);
+    console.warn(`[Supabase Insert Notice]:`, apptError.message || apptError);
     return { synced: false, error: apptError.message, details: apptError };
   } catch (err: any) {
-    console.error(`[Supabase Exception]:`, err);
+    console.warn(`[Supabase Exception Notice]:`, err?.message || err);
     return { synced: false, error: err.message };
   }
 }
@@ -258,10 +256,10 @@ export async function syncCustomerToSupabase(customer: {
       console.log(`[Supabase] Successfully synced customer "${customer.name}" (${cleanPhone}) to 'customers' table.`);
       return { synced: true, table: 'customers' };
     }
-    console.error(`[Supabase Customer Insert Error]:`, error);
+    console.warn(`[Supabase Customer Insert Notice]:`, error.message || error);
     return { synced: false, error: error.message, details: error };
   } catch (err: any) {
-    console.error(`[Supabase Customer Exception]:`, err);
+    console.warn(`[Supabase Customer Notice]:`, err?.message || err);
     return { synced: false, error: err.message };
   }
 }
@@ -348,42 +346,96 @@ export async function deleteAppointmentFromSupabase(id: string, bookingNumber?: 
   }
 
   try {
-    // 1. Attempt hard delete by id
+    // 1. Attempt hard delete by id from appointments and bookings tables
     await client.from('appointments').delete().eq('id', id);
+    await client.from('bookings').delete().eq('id', id);
+
     if (bookingNumber) {
       await client.from('appointments').delete().eq('booking_number', bookingNumber);
+      await client.from('bookings').delete().eq('booking_number', bookingNumber);
     }
-    // 2. Also mark status as deleted so even if RLS blocks delete, it is filtered out
+
+    // 2. Also mark status as deleted so even if RLS blocks delete, it is filtered out everywhere
     await client.from('appointments').update({ status: 'deleted' }).eq('id', id);
+    await client.from('bookings').update({ status: 'deleted' }).eq('id', id);
     if (bookingNumber) {
       await client.from('appointments').update({ status: 'deleted' }).eq('booking_number', bookingNumber);
+      await client.from('bookings').update({ status: 'deleted' }).eq('booking_number', bookingNumber);
     }
     console.log(`[Supabase] Successfully committed deletion for appointment ${id} (Ref: ${bookingNumber || id}).`);
     return { synced: true, table: 'appointments' };
   } catch (err: any) {
-    console.error(`[Supabase Delete Exception]:`, err);
+    console.warn(`[Supabase Delete Notice]:`, err?.message || err);
     return { synced: false, error: err.message };
   }
 }
 
 /**
- * Deletes a customer from Supabase by ID or Phone
+ * Deletes a customer and all duplicate records from Supabase by ID, Phone (formatted & raw digits), and Email
  */
-export async function deleteCustomerFromSupabase(id: string, phone?: string): Promise<SupabaseSyncResult> {
+export async function deleteCustomerFromSupabase(
+  id: string,
+  phone?: string,
+  email?: string
+): Promise<SupabaseSyncResult & { deletedIds?: string[] }> {
   const client = getSupabase();
   if (!client) {
     return { synced: false, error: 'Supabase client not configured' };
   }
 
   try {
-    await client.from('customers').delete().eq('id', id);
-    if (phone) {
-      await client.from('customers').delete().eq('phone', phone);
+    const deletedIds: string[] = [id];
+    const cleanPhone = phone ? String(phone).trim() : '';
+    const digits = cleanPhone.replace(/\D/g, '').slice(-10);
+    const cleanEmail = email ? String(email).trim().toLowerCase() : '';
+
+    // 1. Query Supabase for any customer records matching ID, phone digits, or email
+    try {
+      const { data: matchedRows } = await client
+        .from('customers')
+        .select('id, phone, email');
+
+      if (Array.isArray(matchedRows) && matchedRows.length > 0) {
+        matchedRows.forEach((r: any) => {
+          if (!r.id) return;
+          const rDigits = r.phone ? String(r.phone).replace(/\D/g, '').slice(-10) : '';
+          const rEmail = r.email ? String(r.email).trim().toLowerCase() : '';
+
+          const isMatch =
+            r.id === id ||
+            (digits && rDigits && rDigits === digits) ||
+            (cleanEmail && rEmail && rEmail === cleanEmail);
+
+          if (isMatch && !deletedIds.includes(r.id)) {
+            deletedIds.push(r.id);
+          }
+        });
+      }
+    } catch (queryErr: any) {
+      console.warn('[Supabase Customer Lookup Notice]:', queryErr.message);
     }
-    console.log(`[Supabase] Successfully committed deletion for customer ${id}.`);
-    return { synced: true, table: 'customers' };
+
+    // 2. Execute deletion for all found customer IDs
+    if (deletedIds.length > 0) {
+      await client.from('customers').delete().in('id', deletedIds);
+    }
+
+    // 3. Blanket delete by exact phone, ilike phone digits, and email
+    await client.from('customers').delete().eq('id', id);
+    if (cleanPhone) {
+      await client.from('customers').delete().eq('phone', cleanPhone);
+    }
+    if (digits) {
+      await client.from('customers').delete().ilike('phone', `%${digits}%`);
+    }
+    if (cleanEmail) {
+      await client.from('customers').delete().eq('email', cleanEmail);
+    }
+
+    console.log(`[Supabase] Successfully committed deletion for customer ${id} (phone: ${phone}, email: ${email}). Deleted IDs:`, deletedIds);
+    return { synced: true, table: 'customers', deletedIds };
   } catch (err: any) {
-    console.error(`[Supabase Customer Delete Exception]:`, err);
+    console.warn(`[Supabase Customer Delete Notice]:`, err?.message || err);
     return { synced: false, error: err.message };
   }
 }
@@ -391,7 +443,10 @@ export async function deleteCustomerFromSupabase(id: string, phone?: string): Pr
 /**
  * Clears fake or test appointments from Supabase
  */
-export async function clearAppointmentsFromSupabase(idsToDelete?: string[]): Promise<SupabaseSyncResult> {
+export async function clearAppointmentsFromSupabase(
+  idsToDelete?: string[],
+  bookingNumbersToDelete?: string[]
+): Promise<SupabaseSyncResult> {
   const client = getSupabase();
   if (!client) {
     return { synced: false, error: 'Supabase client not configured' };
@@ -400,12 +455,30 @@ export async function clearAppointmentsFromSupabase(idsToDelete?: string[]): Pro
   try {
     if (idsToDelete && idsToDelete.length > 0) {
       await client.from('appointments').delete().in('id', idsToDelete);
+      await client.from('bookings').delete().in('id', idsToDelete);
       await client.from('appointments').update({ status: 'deleted' }).in('id', idsToDelete);
-    } else {
-      // Delete all records that are not the internal state store (__salon_%)
-      await client.from('appointments').delete().not('id', 'like', '__salon_%');
-      await client.from('appointments').update({ status: 'deleted' }).not('id', 'like', '__salon_%');
     }
+    if (bookingNumbersToDelete && bookingNumbersToDelete.length > 0) {
+      await client.from('appointments').delete().in('booking_number', bookingNumbersToDelete);
+      await client.from('bookings').delete().in('booking_number', bookingNumbersToDelete);
+      await client.from('appointments').update({ status: 'deleted' }).in('booking_number', bookingNumbersToDelete);
+    }
+
+    // Also blanket clear all persistent non-system appointments if full clear was requested
+    if (!idsToDelete || idsToDelete.length === 0) {
+      const { data: allAppts } = await client
+        .from('appointments')
+        .select('id')
+        .neq('id', '__salon_global_state__')
+        .not('id', 'like', '__salon_%');
+
+      if (Array.isArray(allAppts) && allAppts.length > 0) {
+        const remainingIds = allAppts.map((a: any) => a.id);
+        await client.from('appointments').delete().in('id', remainingIds);
+        await client.from('appointments').update({ status: 'deleted' }).in('id', remainingIds);
+      }
+    }
+
     return { synced: true, table: 'appointments' };
   } catch (err: any) {
     return { synced: false, error: err.message };
@@ -422,7 +495,30 @@ export async function syncServicesToSupabase(services: Service[]): Promise<Supab
   }
 
   try {
-    const payload = services.map((s) => ({
+    const richPayload = services.map((s) => ({
+      id: s.id,
+      category_id: s.categoryId,
+      name: s.name,
+      description: s.description || '',
+      price: s.price,
+      price_type: s.priceType || 'exact',
+      min_price: s.minPrice !== undefined ? s.minPrice : s.price,
+      max_price: s.maxPrice !== undefined ? s.maxPrice : s.price,
+      duration_minutes: s.durationMinutes,
+      image_url: s.imageUrl || null,
+      is_active: s.isActive ?? true,
+      is_featured: s.isFeatured ?? false,
+      updated_at: s.updatedAt || new Date().toISOString()
+    }));
+
+    const { error: richErr } = await client.from('services').upsert(richPayload, { onConflict: 'id' });
+    if (!richErr) {
+      console.log(`[Supabase] Successfully synced ${services.length} services with pricing modes to Supabase.`);
+      return { synced: true, table: 'services' };
+    }
+
+    // Fallback if price_type/min_price columns are not yet present in user's table
+    const standardPayload = services.map((s) => ({
       id: s.id,
       category_id: s.categoryId,
       name: s.name,
@@ -432,25 +528,15 @@ export async function syncServicesToSupabase(services: Service[]): Promise<Supab
       image_url: s.imageUrl || null,
       is_active: s.isActive ?? true,
       is_featured: s.isFeatured ?? false,
-      price_type: s.priceType || 'exact',
-      min_price: s.minPrice != null ? s.minPrice : null,
-      max_price: s.maxPrice != null ? s.maxPrice : null,
       updated_at: s.updatedAt || new Date().toISOString()
     }));
 
-    let { error } = await client.from('services').upsert(payload, { onConflict: 'id' });
-    if (error && (error.message.includes('price_type') || error.message.includes('min_price') || error.message.includes('max_price') || error.message.includes('column'))) {
-      // Fallback without new columns if cloud table schema has not yet been altered
-      const basePayload = payload.map(({ price_type, min_price, max_price, ...rest }) => rest);
-      const res = await client.from('services').upsert(basePayload, { onConflict: 'id' });
-      error = res.error;
-    }
-
-    if (!error) {
+    const { error: standardErr } = await client.from('services').upsert(standardPayload, { onConflict: 'id' });
+    if (!standardErr) {
       console.log(`[Supabase] Successfully synced ${services.length} services to Supabase.`);
       return { synced: true, table: 'services' };
     }
-    return { synced: false, error: error.message };
+    return { synced: false, error: standardErr.message };
   } catch (err: any) {
     return { synced: false, error: err.message };
   }
@@ -469,26 +555,17 @@ export async function syncCategoriesToSupabase(categories: ServiceCategory[]): P
     const payload = categories.map((c) => ({
       id: c.id,
       name: c.name,
-      slug: c.slug || c.id.replace('cat_', ''),
+      slug: c.slug || c.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
       description: c.description || '',
-      sort_order: c.sortOrder || 1
+      sort_order: c.sortOrder
     }));
 
-    // Try primary categories table
     const { error } = await client.from('categories').upsert(payload, { onConflict: 'id' });
     if (!error) {
       console.log(`[Supabase] Successfully synced ${categories.length} categories to Supabase.`);
       return { synced: true, table: 'categories' };
     }
-
-    // Try alternate service_categories table
-    const { error: altError } = await client.from('service_categories').upsert(payload, { onConflict: 'id' });
-    if (!altError) {
-      console.log(`[Supabase] Successfully synced ${categories.length} categories to service_categories table.`);
-      return { synced: true, table: 'service_categories' };
-    }
-
-    return { synced: false, error: error.message || altError?.message };
+    return { synced: false, error: error.message };
   } catch (err: any) {
     return { synced: false, error: err.message };
   }
@@ -759,15 +836,29 @@ export async function deleteAllSupabaseAdminNotifications(onlyRead = false): Pro
   if (!client) return false;
 
   try {
-    let query = client.from('admin_notifications').delete();
+    // 1. Fetch all IDs first so we can do a targeted .in('id', ids) delete
+    let fetchQuery = client.from('admin_notifications').select('id');
     if (onlyRead) {
-      query = query.eq('is_read', true);
-    } else {
-      query = query.neq('id', '__never_match__');
+      fetchQuery = fetchQuery.eq('is_read', true);
     }
-    const { error } = await query;
-    return !error;
-  } catch {
+    const { data: rows } = await fetchQuery;
+    if (rows && rows.length > 0) {
+      const ids = rows.map((r: any) => r.id).filter(Boolean);
+      if (ids.length > 0) {
+        await client.from('admin_notifications').delete().in('id', ids);
+      }
+    }
+
+    // 2. Also run blanket delete with safe filter
+    if (onlyRead) {
+      await client.from('admin_notifications').delete().eq('is_read', true);
+    } else {
+      await client.from('admin_notifications').delete().gte('created_at', '1970-01-01');
+      await client.from('admin_notifications').delete().not('id', 'is', null);
+    }
+    return true;
+  } catch (err: any) {
+    console.warn('[Supabase Admin Notifications Delete Notice]:', err?.message || err);
     return false;
   }
 }
@@ -818,9 +909,9 @@ export async function recordAndDispatchAdminNotification(
  */
 export function getSupabaseMigrationSql(): string {
   return `-- ==========================================================
--- B&B Family Salon - Supabase Database Schema
+-- Tassel Unisex Salon - Supabase Database Schema
 -- Safe & Idempotent (Can be re-run at any time without errors)
--- Run this in your Supabase Project SQL Editor (fkkbcnaazeajcnssniev)
+-- Run this in your Supabase Project SQL Editor (tdsqvwgrskexgvmexyns)
 -- ==========================================================
 
 -- 1. Appointments Table
@@ -873,8 +964,8 @@ CREATE TABLE IF NOT EXISTS public.services (
     description TEXT,
     price NUMERIC NOT NULL DEFAULT 0,
     price_type TEXT DEFAULT 'exact',
-    min_price NUMERIC,
-    max_price NUMERIC,
+    min_price NUMERIC DEFAULT 0,
+    max_price NUMERIC DEFAULT 0,
     duration_minutes INTEGER NOT NULL DEFAULT 30,
     image_url TEXT,
     is_active BOOLEAN DEFAULT true,
@@ -883,8 +974,8 @@ CREATE TABLE IF NOT EXISTS public.services (
 );
 
 ALTER TABLE public.services ADD COLUMN IF NOT EXISTS price_type TEXT DEFAULT 'exact';
-ALTER TABLE public.services ADD COLUMN IF NOT EXISTS min_price NUMERIC;
-ALTER TABLE public.services ADD COLUMN IF NOT EXISTS max_price NUMERIC;
+ALTER TABLE public.services ADD COLUMN IF NOT EXISTS min_price NUMERIC DEFAULT 0;
+ALTER TABLE public.services ADD COLUMN IF NOT EXISTS max_price NUMERIC DEFAULT 0;
 
 ALTER TABLE public.services ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Allow public all services" ON public.services;
@@ -1060,7 +1151,7 @@ GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO anon, authenticated, service_role
  */
 export function getSupabaseUpgradeSql(): string {
   return `-- ==========================================================
--- B&B Family Salon - Feature Upgrade Migration
+-- Tassel Unisex Salon - Feature Upgrade Migration
 -- Safe & Idempotent (Can be re-run at any time without warnings)
 -- ==========================================================
 
@@ -1070,11 +1161,6 @@ ALTER TABLE public.appointments ADD COLUMN IF NOT EXISTS stylist_name TEXT;
 ALTER TABLE public.appointments ADD COLUMN IF NOT EXISTS cancellation_reason TEXT;
 ALTER TABLE public.appointments ADD COLUMN IF NOT EXISTS cancelled_at TIMESTAMPTZ;
 ALTER TABLE public.appointments ADD COLUMN IF NOT EXISTS cancelled_by TEXT;
-
--- 1b. Extend services table with Exact/Range pricing support
-ALTER TABLE public.services ADD COLUMN IF NOT EXISTS price_type TEXT DEFAULT 'exact';
-ALTER TABLE public.services ADD COLUMN IF NOT EXISTS min_price NUMERIC;
-ALTER TABLE public.services ADD COLUMN IF NOT EXISTS max_price NUMERIC;
 
 -- 2. Create persistent Admin Notifications table
 CREATE TABLE IF NOT EXISTS public.admin_notifications (

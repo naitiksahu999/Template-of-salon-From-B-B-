@@ -34,9 +34,14 @@ export interface SalonDatabase {
   staff: StaffMember[];
   adminNotifications?: AdminNotification[];
   deletedAppointmentIds?: string[];
+  deletedBookingNumbers?: string[];
   deletedCustomerIds?: string[];
+  deletedCustomerPhones?: string[];
+  deletedCustomerEmails?: string[];
   deletedNotificationIds?: string[];
   deletedLogIds?: string[];
+  logsClearedAt?: string;
+  notificationsClearedAt?: string;
 }
 
 const DATA_DIR = path.resolve(process.cwd(), 'data');
@@ -51,7 +56,7 @@ const adminPasswordHash = '$2b$10$Gad3hOiS7nK/wVaFjMDCQ.O7l/8xV6gOhl8t9YX6d.1qdc
 export const defaultAdmin: AdminUser = {
   id: 'admin_primary',
   username: 'admin',
-  email: 'nsahu7000326707@gmail.com',
+  email: 'naitiksahu054@gmail.com',
   passwordHash: adminPasswordHash,
   role: 'superadmin',
   createdAt: '2026-10-09T00:00:00.000Z'
@@ -248,7 +253,7 @@ export const defaultReviews: Review[] = [
     id: 'rev_1',
     authorName: 'Rohit Malviya',
     rating: 5,
-    reviewText: 'Professional staff and exceptionally clean ambience. Took an appointment for a haircut and hair spa in Kolar Road; extremely satisfied with the hygiene and stylist attention.',
+    reviewText: 'Exceptional styling and very courteous team at Tassel Unisex Salon on Kolar Road. Extremely satisfied with the hygiene and stylist attention.',
     reviewDate: 'September 2026',
     source: 'Google Reviews',
     isVerified: true,
@@ -259,7 +264,7 @@ export const defaultReviews: Review[] = [
     id: 'rev_2',
     authorName: 'Priyanka Sharma',
     rating: 5,
-    reviewText: 'One of the best unisex salons near Ultimate Arcade on Kolar Road. Welcoming team, sterilized tools, and the facial treatment was truly revitalizing.',
+    reviewText: 'One of the best unisex salons in Mandakini Colony, Kolar Road. Welcoming team, modern tools, and the facial treatment was truly revitalizing.',
     reviewDate: 'August 2026',
     source: 'Google Reviews',
     isVerified: true,
@@ -270,7 +275,7 @@ export const defaultReviews: Review[] = [
     id: 'rev_3',
     authorName: 'Alok Verma',
     rating: 5,
-    reviewText: 'Brought my son for his haircut and got styled myself as well. Genuine family-friendly environment, patient staff, and very reasonable pricing.',
+    reviewText: 'Visited Tassel Salon for haircut and grooming. Clean environment, patient staff, and very transparent pricing.',
     reviewDate: 'August 2026',
     source: 'Google Reviews',
     isVerified: true,
@@ -281,7 +286,7 @@ export const defaultReviews: Review[] = [
     id: 'rev_4',
     authorName: 'Neha Gupta',
     rating: 5,
-    reviewText: 'Pleased with the de-tan and skin service. Very polite behavior and thorough cleanliness throughout the salon. Highly recommended in Bhopal.',
+    reviewText: 'Pleased with the de-tan and skin service at Tassel. Very polite behavior and thorough cleanliness throughout the salon. Highly recommended in Bhopal.',
     reviewDate: 'July 2026',
     source: 'Google Reviews',
     isVerified: true,
@@ -334,17 +339,17 @@ export const defaultGallery: GalleryItem[] = [
 ];
 
 export const defaultSettings: SiteSettings = {
-  salonName: 'B & B Family Salon',
-  alternateName: 'B&B Unisex Salon',
-  tagline: 'Premium Grooming & Beauty Sanctuary in Bhopal',
-  phone: '+91 91316 29031',
-  email: 'contact@bbfamilysalon.com',
-  address: '2nd Floor, B&B Family Salon, Ultimate Arcade, F11-12, Kolar Road',
-  landmarks: 'Near Sagar Gaire and Vishal Mega Mart',
+  salonName: 'Tassel Unisex Salon',
+  alternateName: 'Tassel Salon Bhopal',
+  tagline: 'Luxury Unisex Salon & Beauty Sanctuary in Bhopal',
+  phone: '+91 78800 86990',
+  email: 'contact@tasselunisexsalon.com',
+  address: 'Kolar Road, Good Shapard Kalan, Mandakini Colony',
+  landmarks: 'Mandakini Colony, Kolar Road',
   city: 'Bhopal',
   state: 'Madhya Pradesh',
   pincode: '462042',
-  googleMapsUrl: 'https://www.google.com/maps/search/?api=1&query=B%26B+Family+Salon+Ultimate+Arcade+Kolar+Road+Bhopal',
+  googleMapsUrl: 'https://www.google.co.in/maps/place/Tassel+Unisex+Salon,+Kolar+Rd,+Good+Shapard+Kalan,+Mandakini+Colony,+Kolar+Rd,+Bhopal,+Madhya+Pradesh+462042/@23.1823711,77.4175763,17z/',
   slotIntervalMinutes: 30,
   autoConfirmBookings: true,
   cancellationDeadlineHours: 2,
@@ -364,7 +369,7 @@ export const defaultStaff: StaffMember[] = [
     rating: 4.9,
     bio: 'Renowned hair artisan with over a decade of grooming mastery in Bhopal. Specializes in tailored face-shape cuts and low-maintenance styling.',
     imageUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80',
-    phone: '+91 91316 29031',
+    phone: '+91 78800 86990',
     isActive: true,
     createdAt: '2026-01-01T00:00:00.000Z'
   },
@@ -377,7 +382,7 @@ export const defaultStaff: StaffMember[] = [
     rating: 4.9,
     bio: 'Certified dermacare aesthetician delivering restorative, luminous skin rituals using hospital-grade hygiene and dermatological botanicals.',
     imageUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=600&q=80',
-    phone: '+91 91316 29031',
+    phone: '+91 78800 86990',
     isActive: true,
     createdAt: '2026-01-01T00:00:00.000Z'
   },
@@ -390,7 +395,7 @@ export const defaultStaff: StaffMember[] = [
     rating: 4.8,
     bio: 'Expert colorist known for seamless dimensional blondes, rich brunette tones, and hair damage reversal treatments.',
     imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80',
-    phone: '+91 91316 29031',
+    phone: '+91 78800 86990',
     isActive: true,
     createdAt: '2026-01-01T00:00:00.000Z'
   },
@@ -403,7 +408,7 @@ export const defaultStaff: StaffMember[] = [
     rating: 5.0,
     bio: 'Celebrated bridal makeup visionary creating photogenic, long-lasting bridal looks that enhance natural beauty with couture elegance.',
     imageUrl: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=600&q=80',
-    phone: '+91 91316 29031',
+    phone: '+91 78800 86990',
     isActive: true,
     createdAt: '2026-01-01T00:00:00.000Z'
   }
@@ -421,7 +426,7 @@ export async function saveDb(updatedData: SalonDatabase): Promise<void> {
   // Guarantee deletion arrays never store booking reference numbers or customer phone numbers
   if (Array.isArray(updatedData.deletedAppointmentIds)) {
     updatedData.deletedAppointmentIds = updatedData.deletedAppointmentIds.filter(
-      (id) => typeof id === 'string' && !id.startsWith('BB-')
+      (id) => typeof id === 'string' && !id.startsWith('BB-') && !id.startsWith('TS-')
     );
   }
   if (Array.isArray(updatedData.deletedCustomerIds)) {
@@ -467,11 +472,16 @@ export async function saveDb(updatedData: SalonDatabase): Promise<void> {
         staff: updatedData.staff,
         appointments: updatedData.appointments || [],
         deletedAppointmentIds: updatedData.deletedAppointmentIds || [],
+        deletedBookingNumbers: updatedData.deletedBookingNumbers || [],
         deletedCustomerIds: updatedData.deletedCustomerIds || [],
+        deletedCustomerPhones: updatedData.deletedCustomerPhones || [],
+        deletedCustomerEmails: updatedData.deletedCustomerEmails || [],
         notificationsLog: updatedData.notificationsLog || [],
         deletedLogIds: updatedData.deletedLogIds || [],
+        logsClearedAt: updatedData.logsClearedAt,
         adminNotifications: updatedData.adminNotifications || [],
         deletedNotificationIds: updatedData.deletedNotificationIds || [],
+        notificationsClearedAt: updatedData.notificationsClearedAt,
         savedAt: new Date().toISOString()
       };
       try {
@@ -491,14 +501,17 @@ export async function saveDb(updatedData: SalonDatabase): Promise<void> {
             status: 'system',
             notes: JSON.stringify(cloudPayload)
           }, { onConflict: 'id' });
-        if (error) console.error('[Supabase State Cloud Sync Error]:', error);
-        else console.log('[Supabase State Cloud Sync]: Successfully persisted salon changes to cloud.');
+        if (error) {
+          console.warn('[Supabase State Cloud Sync Notice]:', error.message || error);
+        } else {
+          console.log('[Supabase State Cloud Sync]: Successfully persisted salon changes to cloud.');
+        }
       } catch (err: any) {
-        console.error('[Supabase State Cloud Sync Exception]:', err);
+        console.warn('[Supabase State Cloud Sync Notice]:', err?.message || err);
       }
     }
-  } catch (syncErr) {
-    console.error('[Supabase State Cloud Sync Warning]:', syncErr);
+  } catch (syncErr: any) {
+    console.warn('[Supabase State Cloud Sync Notice]:', syncErr?.message || syncErr);
   }
 }
 
@@ -604,28 +617,24 @@ export async function initDb(): Promise<SalonDatabase> {
             if (Array.isArray(parsedCloud.galleryItems) && parsedCloud.galleryItems.length > 0) {
               dbCache.galleryItems = parsedCloud.galleryItems;
             }
-            if (Array.isArray(parsedCloud.customers)) {
-              dbCache.customers = parsedCloud.customers;
-            }
             if (Array.isArray(parsedCloud.staff) && parsedCloud.staff.length > 0) {
               dbCache.staff = parsedCloud.staff;
             }
-            if (Array.isArray(parsedCloud.appointments) && parsedCloud.appointments.length > 0) {
-              dbCache.appointments = parsedCloud.appointments;
-            }
             if (Array.isArray(parsedCloud.deletedAppointmentIds)) {
-              // Only keep unique record IDs (starting with appt_), NEVER sequential booking numbers like BB-
               const sanitizedCloudApptIds = parsedCloud.deletedAppointmentIds.filter(
-                (id: string) => typeof id === 'string' && !id.startsWith('BB-')
+                (id: string) => typeof id === 'string' && !id.startsWith('BB-') && !id.startsWith('TS-')
               );
               const sanitizedLocalApptIds = (dbCache.deletedAppointmentIds || []).filter(
-                (id: string) => typeof id === 'string' && !id.startsWith('BB-')
+                (id: string) => typeof id === 'string' && !id.startsWith('BB-') && !id.startsWith('TS-')
               );
               const unionAppt = new Set([...sanitizedLocalApptIds, ...sanitizedCloudApptIds]);
               dbCache.deletedAppointmentIds = Array.from(unionAppt);
             }
+            if (Array.isArray(parsedCloud.deletedBookingNumbers)) {
+              const unionBNum = new Set([...(dbCache.deletedBookingNumbers || []), ...parsedCloud.deletedBookingNumbers]);
+              dbCache.deletedBookingNumbers = Array.from(unionBNum);
+            }
             if (Array.isArray(parsedCloud.deletedCustomerIds)) {
-              // Only keep unique customer IDs (starting with cust_), NEVER phone numbers
               const sanitizedCloudCustIds = parsedCloud.deletedCustomerIds.filter(
                 (id: string) => typeof id === 'string' && !/^\+?\d+$/.test(id.replace(/\s+/g, ''))
               );
@@ -635,19 +644,112 @@ export async function initDb(): Promise<SalonDatabase> {
               const unionCust = new Set([...sanitizedLocalCustIds, ...sanitizedCloudCustIds]);
               dbCache.deletedCustomerIds = Array.from(unionCust);
             }
-            if (Array.isArray(parsedCloud.notificationsLog)) {
-              dbCache.notificationsLog = parsedCloud.notificationsLog;
+            if (Array.isArray(parsedCloud.deletedCustomerPhones)) {
+              const unionPhones = new Set([...(dbCache.deletedCustomerPhones || []), ...parsedCloud.deletedCustomerPhones]);
+              dbCache.deletedCustomerPhones = Array.from(unionPhones);
+            }
+            if (Array.isArray(parsedCloud.deletedCustomerEmails)) {
+              const unionEmails = new Set([...(dbCache.deletedCustomerEmails || []), ...parsedCloud.deletedCustomerEmails]);
+              dbCache.deletedCustomerEmails = Array.from(unionEmails);
             }
             if (Array.isArray(parsedCloud.deletedLogIds)) {
               const unionLogs = new Set([...(dbCache.deletedLogIds || []), ...parsedCloud.deletedLogIds]);
               dbCache.deletedLogIds = Array.from(unionLogs);
             }
-            if (Array.isArray(parsedCloud.adminNotifications)) {
-              dbCache.adminNotifications = parsedCloud.adminNotifications;
+            if (parsedCloud.logsClearedAt) {
+              if (!dbCache.logsClearedAt || parsedCloud.logsClearedAt > dbCache.logsClearedAt) {
+                dbCache.logsClearedAt = parsedCloud.logsClearedAt;
+              }
             }
             if (Array.isArray(parsedCloud.deletedNotificationIds)) {
               const unionNotif = new Set([...(dbCache.deletedNotificationIds || []), ...parsedCloud.deletedNotificationIds]);
               dbCache.deletedNotificationIds = Array.from(unionNotif);
+            }
+            if (parsedCloud.notificationsClearedAt) {
+              if (!dbCache.notificationsClearedAt || parsedCloud.notificationsClearedAt > dbCache.notificationsClearedAt) {
+                dbCache.notificationsClearedAt = parsedCloud.notificationsClearedAt;
+              }
+            }
+
+            // Hydrate appointments from cloud snapshot if not deleted
+            if (Array.isArray(parsedCloud.appointments) && parsedCloud.appointments.length > 0) {
+              const apptDelSet = new Set(dbCache.deletedAppointmentIds || []);
+              const bNumDelSet = new Set(dbCache.deletedBookingNumbers || []);
+              const apptMap = new Map<string, Appointment>();
+              (dbCache.appointments || []).forEach((a) => {
+                if (a.id && !apptDelSet.has(a.id) && (!a.bookingNumber || !bNumDelSet.has(a.bookingNumber))) {
+                  apptMap.set(a.id, a);
+                }
+              });
+              parsedCloud.appointments.forEach((ca: Appointment) => {
+                if (
+                  ca.id &&
+                  !apptDelSet.has(ca.id) &&
+                  (!ca.bookingNumber || !bNumDelSet.has(ca.bookingNumber)) &&
+                  (ca.status as any) !== 'deleted'
+                ) {
+                  if (!apptMap.has(ca.id)) {
+                    apptMap.set(ca.id, ca);
+                  }
+                }
+              });
+              dbCache.appointments = Array.from(apptMap.values());
+            }
+
+            // Merge cloud notification logs safely without overwriting deletions
+            if (Array.isArray(parsedCloud.notificationsLog)) {
+              const delLogSet = new Set(dbCache.deletedLogIds || []);
+              const logsClearTime = dbCache.logsClearedAt ? new Date(dbCache.logsClearedAt).getTime() : 0;
+              const logMap = new Map<string, NotificationLog>();
+              (dbCache.notificationsLog || []).forEach((l) => {
+                if (
+                  l.id &&
+                  !delLogSet.has(l.id) &&
+                  (!logsClearTime || new Date(l.createdAt).getTime() > logsClearTime)
+                ) {
+                  logMap.set(l.id, l);
+                }
+              });
+              parsedCloud.notificationsLog.forEach((cl: NotificationLog) => {
+                if (
+                  cl.id &&
+                  !delLogSet.has(cl.id) &&
+                  (!logsClearTime || new Date(cl.createdAt).getTime() > logsClearTime)
+                ) {
+                  if (!logMap.has(cl.id)) {
+                    logMap.set(cl.id, cl);
+                  }
+                }
+              });
+              dbCache.notificationsLog = Array.from(logMap.values());
+            }
+
+            // Merge cloud admin notifications safely without overwriting deletions
+            if (Array.isArray(parsedCloud.adminNotifications)) {
+              const delNotifSet = new Set(dbCache.deletedNotificationIds || []);
+              const notifsClearTime = dbCache.notificationsClearedAt ? new Date(dbCache.notificationsClearedAt).getTime() : 0;
+              const notifMap = new Map<string, AdminNotification>();
+              (dbCache.adminNotifications || []).forEach((n) => {
+                if (
+                  n.id &&
+                  !delNotifSet.has(n.id) &&
+                  (!notifsClearTime || new Date(n.createdAt).getTime() > notifsClearTime)
+                ) {
+                  notifMap.set(n.id, n);
+                }
+              });
+              parsedCloud.adminNotifications.forEach((cn: AdminNotification) => {
+                if (
+                  cn.id &&
+                  !delNotifSet.has(cn.id) &&
+                  (!notifsClearTime || new Date(cn.createdAt).getTime() > notifsClearTime)
+                ) {
+                  if (!notifMap.has(cn.id)) {
+                    notifMap.set(cn.id, cn);
+                  }
+                }
+              });
+              dbCache.adminNotifications = Array.from(notifMap.values());
             }
           }
         } catch (e) {
@@ -655,30 +757,65 @@ export async function initDb(): Promise<SalonDatabase> {
         }
       }
 
-      // Final sanitize of deletion sets to ensure zero sequence numbers or phone numbers exist
+      // Final sanitize of deletion sets
       dbCache.deletedAppointmentIds = (dbCache.deletedAppointmentIds || []).filter(
-        (id: string) => typeof id === 'string' && !id.startsWith('BB-')
+        (id: string) => typeof id === 'string' && !id.startsWith('BB-') && !id.startsWith('TS-')
       );
       dbCache.deletedCustomerIds = (dbCache.deletedCustomerIds || []).filter(
         (id: string) => typeof id === 'string' && !/^\+?\d+$/.test(id.replace(/\s+/g, ''))
       );
 
       const deletedApptSet = new Set(dbCache.deletedAppointmentIds || []);
+      const deletedBNumSet = new Set(dbCache.deletedBookingNumbers || []);
       const deletedCustSet = new Set(dbCache.deletedCustomerIds || []);
+      const deletedPhoneSet = new Set(dbCache.deletedCustomerPhones || []);
+      const deletedEmailSet = new Set(dbCache.deletedCustomerEmails || []);
       const deletedLogSet = new Set(dbCache.deletedLogIds || []);
       const deletedNotifSet = new Set(dbCache.deletedNotificationIds || []);
+      const finalLogsClearTime = dbCache.logsClearedAt ? new Date(dbCache.logsClearedAt).getTime() : 0;
+      const finalNotifsClearTime = dbCache.notificationsClearedAt ? new Date(dbCache.notificationsClearedAt).getTime() : 0;
 
-      // Filter local appointments and customers strictly against unique record ID
+      // Filter local appointments strictly
       dbCache.appointments = (dbCache.appointments || []).filter(
-        (a) => !deletedApptSet.has(a.id) && (a.status as any) !== 'deleted'
-      );
-      dbCache.customers = (dbCache.customers || []).filter(
-        (c) => !deletedCustSet.has(c.id)
+        (a) =>
+          !deletedApptSet.has(a.id) &&
+          (!a.bookingNumber || !deletedBNumSet.has(a.bookingNumber)) &&
+          (a.status as any) !== 'deleted'
       );
 
-      // Filter notification logs and admin notifications against permanent deletion logs
-      dbCache.notificationsLog = (dbCache.notificationsLog || []).filter((l) => !deletedLogSet.has(l.id));
-      dbCache.adminNotifications = (dbCache.adminNotifications || []).filter((n) => !deletedNotifSet.has(n.id));
+      // Filter and deduplicate local customers
+      const filteredCustomers = (dbCache.customers || []).filter((c) => {
+        if (deletedCustSet.has(c.id)) return false;
+        const cDigits = c.phone ? c.phone.replace(/\D/g, '').slice(-10) : '';
+        if (cDigits && deletedPhoneSet.has(cDigits)) return false;
+        const cEmail = c.email ? c.email.trim().toLowerCase() : '';
+        if (cEmail && deletedEmailSet.has(cEmail)) return false;
+        return true;
+      });
+
+      // Deduplicate customers by 10-digit phone number
+      const custDedupMap = new Map<string, Customer>();
+      filteredCustomers.forEach((c) => {
+        const cDigits = c.phone ? c.phone.replace(/\D/g, '').slice(-10) : c.id;
+        if (!custDedupMap.has(cDigits)) {
+          custDedupMap.set(cDigits, c);
+        } else {
+          const ex = custDedupMap.get(cDigits)!;
+          ex.totalBookings = Math.max(ex.totalBookings || 1, c.totalBookings || 1);
+          if (c.lastBookingDate && (!ex.lastBookingDate || c.lastBookingDate > ex.lastBookingDate)) {
+            ex.lastBookingDate = c.lastBookingDate;
+          }
+        }
+      });
+      dbCache.customers = Array.from(custDedupMap.values());
+
+      // Filter notification logs and admin notifications against permanent deletion logs and cleared timestamps
+      dbCache.notificationsLog = (dbCache.notificationsLog || []).filter(
+        (l) => !deletedLogSet.has(l.id) && (!finalLogsClearTime || new Date(l.createdAt).getTime() > finalLogsClearTime)
+      );
+      dbCache.adminNotifications = (dbCache.adminNotifications || []).filter(
+        (n) => !deletedNotifSet.has(n.id) && (!finalNotifsClearTime || new Date(n.createdAt).getTime() > finalNotifsClearTime)
+      );
 
       // Pull persistent customers directly from Supabase cloud table
       const { data: cloudCustomers } = await supabase
@@ -687,31 +824,42 @@ export async function initDb(): Promise<SalonDatabase> {
 
       if (Array.isArray(cloudCustomers) && cloudCustomers.length > 0) {
         cloudCustomers.forEach((cc: any) => {
-          if (cc.id && !deletedCustSet.has(cc.id)) {
-            const cleanPhone = cc.phone ? cc.phone.trim() : '';
-            const existingCustIdx = dbCache!.customers.findIndex(
-              (c) => c.id === cc.id || (cleanPhone && c.phone === cleanPhone)
-            );
-            if (existingCustIdx !== -1) {
-              dbCache!.customers[existingCustIdx].name = cc.name || dbCache!.customers[existingCustIdx].name;
-              dbCache!.customers[existingCustIdx].totalBookings = cc.total_bookings ?? dbCache!.customers[existingCustIdx].totalBookings;
-              dbCache!.customers[existingCustIdx].lastBookingDate = cc.last_booking_date || dbCache!.customers[existingCustIdx].lastBookingDate;
-              dbCache!.customers[existingCustIdx].isVerified = true;
-              dbCache!.customers[existingCustIdx].isRegistered = true;
-            } else {
-              dbCache!.customers.push({
-                id: cc.id,
-                name: cc.name,
-                phone: cleanPhone,
-                email: cc.email || undefined,
-                totalBookings: cc.total_bookings || 1,
-                lastBookingDate: cc.last_booking_date || undefined,
-                createdAt: cc.created_at || new Date().toISOString(),
-                isRegistered: true,
-                isVerified: true,
-                notes: ''
-              });
-            }
+          if (!cc.id) return;
+          const cleanPhone = cc.phone ? cc.phone.trim() : '';
+          const digits = cleanPhone.replace(/\D/g, '').slice(-10);
+          const cleanEmail = cc.email ? cc.email.trim().toLowerCase() : '';
+
+          if (
+            deletedCustSet.has(cc.id) ||
+            (digits && deletedPhoneSet.has(digits)) ||
+            (cleanEmail && deletedEmailSet.has(cleanEmail))
+          ) {
+            // Already deleted customer, do not revive
+            return;
+          }
+
+          const existingCustIdx = dbCache!.customers.findIndex(
+            (c) => c.id === cc.id || (digits && c.phone.replace(/\D/g, '').endsWith(digits))
+          );
+          if (existingCustIdx !== -1) {
+            dbCache!.customers[existingCustIdx].name = cc.name || dbCache!.customers[existingCustIdx].name;
+            dbCache!.customers[existingCustIdx].totalBookings = cc.total_bookings ?? dbCache!.customers[existingCustIdx].totalBookings;
+            dbCache!.customers[existingCustIdx].lastBookingDate = cc.last_booking_date || dbCache!.customers[existingCustIdx].lastBookingDate;
+            dbCache!.customers[existingCustIdx].isVerified = true;
+            dbCache!.customers[existingCustIdx].isRegistered = true;
+          } else {
+            dbCache!.customers.push({
+              id: cc.id,
+              name: cc.name,
+              phone: cleanPhone,
+              email: cc.email || undefined,
+              totalBookings: cc.total_bookings || 1,
+              lastBookingDate: cc.last_booking_date || undefined,
+              createdAt: cc.created_at || new Date().toISOString(),
+              isRegistered: true,
+              isVerified: true,
+              notes: ''
+            });
           }
         });
       }
@@ -731,6 +879,7 @@ export async function initDb(): Promise<SalonDatabase> {
             !ca.id.startsWith('system_') &&
             ca.status !== 'deleted' &&
             !deletedApptSet.has(ca.id) &&
+            (!ca.booking_number || !deletedBNumSet.has(ca.booking_number)) &&
             !ca.booking_number?.startsWith('TEST-') &&
             !ca.booking_number?.startsWith('SYS-')
           ) {
@@ -764,7 +913,7 @@ export async function initDb(): Promise<SalonDatabase> {
 
             const mappedAppt: Appointment = {
               id: ca.id,
-              bookingNumber: ca.booking_number || ca.bookingNumber || `BB-${ca.id}`,
+              bookingNumber: ca.booking_number || ca.bookingNumber || `TS-${ca.id}`,
               customerId: ca.customer_id || ca.customerId,
               customerName: ca.customer_name || ca.customerName || 'Customer',
               customerPhone: ca.customer_phone || ca.customerPhone || '',

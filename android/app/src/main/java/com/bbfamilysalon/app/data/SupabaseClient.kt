@@ -7,8 +7,8 @@ import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.realtime.Realtime
 
 object SupabaseConfig {
-    const val SUPABASE_URL = "https://fkkbcnaazeajcnssniev.supabase.co"
-    const val SUPABASE_ANON_KEY = "sb_publishable_SeQLZGYpG6SU7pj8fTTRRg_bXRnqudV"
+    const val SUPABASE_URL = "https://tdsqvwgrskexgvmexyns.supabase.co"
+    const val SUPABASE_ANON_KEY = "sb_publishable_ku5BwUGgZGcTjGyHxon90g_KoEVGwHq"
 
     val client: SupabaseClient by lazy {
         createSupabaseClient(

@@ -3,7 +3,7 @@
     "id": "admin_primary",
     "username": "Naitik Sahu",
     "email": "naitiksahu054@gmail.com",
-    "passwordHash": "$2b$10$hN4uw.uti9TYD3uDRZg/oeewKEzoTgZsheaw.faCnjXfUtDWnV8ge",
+    "passwordHash": "$2b$10$aBLHo4NlOrU2DNKiZWplzuIkp2i77939jwbq2y/mD1alE6SXSBu/6",
     "role": "superadmin",
     "createdAt": "2026-10-09T09:50:40.996Z"
   }

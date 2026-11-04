@@ -1,218 +1,102 @@
 {
-  "bnb_sess_1790932802205_jor66g9dgtp_a7hkdne79ap": {
-    "userId": "admin_1790932802203",
-    "username": "testowner",
-    "email": "testowner@gmail.com",
-    "expiresAt": 1793524802205
-  },
-  "bnb_sess_1790932830634_nmdgw69boom_esgrfas9dft": {
-    "userId": "admin_1790932802203",
-    "username": "testowner",
-    "email": "testowner@gmail.com",
-    "expiresAt": 1793524830634
-  },
-  "bnb_sess_1790932840958_v9q1bbn3dw_n9lajmpy3sh": {
-    "userId": "admin_1790932802203",
-    "username": "testowner",
-    "email": "testowner@gmail.com",
-    "expiresAt": 1793524840958
-  },
-  "bnb_sess_1790932857428_52ca7h57kbo_jkcjdgniry": {
-    "userId": "admin_1790932802203",
-    "username": "testowner",
-    "email": "testowner@gmail.com",
-    "expiresAt": 1793524857428
-  },
-  "bnb_sess_1791544356549_4wkpkvpuefv_qcoa7eukpj": {
-    "userId": "admin_primary",
-    "username": "admin",
-    "email": "nsahu7000326707@gmail.com",
-    "expiresAt": 1794136356549
-  },
-  "bnb_sess_1791817366486_uo5isyurrsd_20y44jbk6ft": {
-    "userId": "admin_primary",
-    "username": "Naitik",
-    "email": "naitiksahu054@gmail.com",
-    "expiresAt": 1794409366486
-  },
-  "bnb_sess_1791817417848_j087hms38sh_64p98qbqay3": {
-    "userId": "admin_primary",
-    "username": "Naitik",
-    "email": "naitiksahu054@gmail.com",
-    "expiresAt": 1794409417848
-  },
-  "bnb_sess_1791898097747_jas4wfowvbg_kzmk7zc9ur": {
-    "userId": "admin-001",
-    "username": "Naitik",
-    "email": "naitiksahu054@gmail.com",
-    "expiresAt": 1794490097747
-  },
-  "bnb_sess_1791898108219_2b38n5t6y4w_vfkhei51cik": {
-    "userId": "admin-001",
-    "username": "Naitik",
-    "email": "naitiksahu054@gmail.com",
-    "expiresAt": 1794490108219
-  },
-  "bnb_sess_1791898162221_5h74imxivx7_e3kjttwuev": {
-    "userId": "admin-001",
-    "username": "Naitik",
-    "email": "naitiksahu054@gmail.com",
-    "expiresAt": 1794490162221
-  },
-  "bnb_sess_1791898170285_0ckucqkr8tbe_lu30mdt7f4k": {
-    "userId": "admin-001",
-    "username": "Naitik",
-    "email": "naitiksahu054@gmail.com",
-    "expiresAt": 1794490170285
-  },
-  "bnb_sess_1791898184242_j60kpm18vcp_ent7ssokob": {
-    "userId": "admin-001",
-    "username": "Naitik",
-    "email": "naitiksahu054@gmail.com",
-    "expiresAt": 1794490184242
-  },
-  "bnb_sess_1792146091129_g8bsnzr9bpd_k9s2txvh2i": {
-    "userId": "admin_primary",
-    "username": "Naitik",
-    "email": "naitiksahu054@gmail.com",
-    "expiresAt": 1794738091129
-  },
-  "bnb_sess_1792222923547_ra6c8mq8je_xnaj75xx7f9": {
-    "userId": "admin_primary",
-    "username": "Naitik",
-    "email": "naitiksahu054@gmail.com",
-    "expiresAt": 1794814923547
-  },
-  "bnb_sess_1792222972819_x7vjbtzlsqk_t33ckhp32e": {
-    "userId": "admin_primary",
-    "username": "Naitik",
-    "email": "naitiksahu054@gmail.com",
-    "expiresAt": 1794814972819
-  },
-  "bnb_sess_1792223023432_qu9ujonc9h_4uwdo3wop4f": {
-    "userId": "admin_primary",
-    "username": "Naitik",
-    "email": "naitiksahu054@gmail.com",
-    "expiresAt": 1794815023432
-  },
-  "bnb_sess_1792224217326_3js51dad4us_h0cvempeyap": {
-    "userId": "admin_primary",
-    "username": "Naitik",
-    "email": "naitiksahu054@gmail.com",
-    "expiresAt": 1794816217326
-  },
-  "bnb_sess_1792224301016_cxz53hjn2lm_eg0ip0e9bnh": {
-    "userId": "admin_primary",
-    "username": "Naitik",
-    "email": "naitiksahu054@gmail.com",
-    "expiresAt": 1794816301016
-  },
-  "bnb_sess_1792224856037_t59s742k2pl_iugtin7mab": {
-    "userId": "admin_primary",
-    "username": "Naitik",
-    "email": "naitiksahu054@gmail.com",
-    "expiresAt": 1794816856037
-  },
-  "bnb_sess_1792589273527_nrxvkai8me_shvfm4bmnn": {
+  "bnb_sess_1793206989429_e1odizfo4op_us2m0h8r3gj": {
     "userId": "admin_primary",
     "username": "Naitik Sahu",
+    "email": "naitiksahu054@gmail.com",
+    "expiresAt": 1795798989429
+  },
+  "bnb_sess_1793207173337_gt29vukdvit_1hv1u0u9wn6": {
+    "userId": "admin_primary",
+    "username": "Naitik Sahu",
+    "email": "naitiksahu054@gmail.com",
+    "expiresAt": 1795799173337
+  },
+  "bnb_sess_1793207226972_x4yoosnjng_934oefeze3": {
+    "userId": "admin_primary",
+    "username": "Naitik Sahu",
+    "email": "naitiksahu054@gmail.com",
+    "expiresAt": 1795799226972
+  },
+  "bnb_sess_1793207317645_vhoe3rwjomp_2qf42e2ar52": {
+    "userId": "admin_primary",
+    "username": "Naitik Sahu",
+    "email": "naitiksahu054@gmail.com",
+    "expiresAt": 1795799317645
+  },
+  "bnb_sess_1793208635499_slvazy9p44d_1yw7gwkaxrh": {
+    "userId": "admin_primary",
+    "username": "Naitik Sahu",
+    "email": "naitiksahu054@gmail.com",
+    "expiresAt": 1795800635499
+  },
+  "bnb_sess_1793208709332_ey75u5eoe86_1t9jhc1wxwv": {
+    "userId": "admin_primary",
+    "username": "Naitik",
     "email": "mrtechsahu@gmail.com",
-    "expiresAt": 1795181273527
+    "expiresAt": 1795800709332
   },
-  "bnb_sess_1792589350616_sjz0e2r0fl_o565tqgwyu": {
+  "bnb_sess_1793208794791_72zm65v4ln_ub66wvzon1o": {
+    "userId": "admin_primary",
+    "username": "Naitik",
+    "email": "naitiksahu054@gmail.com",
+    "expiresAt": 1795800794791
+  },
+  "bnb_sess_1793209040974_7hrivb89rek_ly8csxos0oc": {
     "userId": "admin_primary",
     "username": "Naitik Sahu",
+    "email": "naitiksahu054@gmail.com",
+    "expiresAt": 1795801040974
+  },
+  "bnb_sess_1793454465197_5sybxlr6eln_rzx9v65y92a": {
+    "userId": {
+      "id": "admin_primary",
+      "username": "T-Naitik sahu",
+      "email": "mrtechsahu@gmail.com",
+      "passwordHash": "$2b$10$aBLHo4NlOrU2DNKiZWplzuIkp2i77939jwbq2y/mD1alE6SXSBu/6",
+      "role": "superadmin",
+      "createdAt": "2026-10-09T09:50:40.996Z"
+    },
+    "expiresAt": 1796046465197
+  },
+  "bnb_sess_1793454485430_geyq94s54pb_q1sy9jwili": {
+    "userId": {
+      "id": "admin_primary",
+      "username": "T-Naitik sahu",
+      "email": "mrtechsahu@gmail.com",
+      "passwordHash": "$2b$10$aBLHo4NlOrU2DNKiZWplzuIkp2i77939jwbq2y/mD1alE6SXSBu/6",
+      "role": "superadmin",
+      "createdAt": "2026-10-09T09:50:40.996Z"
+    },
+    "expiresAt": 1796046485430
+  },
+  "bnb_sess_1793454505781_1djvdm3hqxq_6npzv42k6rc": {
+    "userId": "admin_primary",
+    "username": "T-Naitik sahu",
     "email": "mrtechsahu@gmail.com",
-    "expiresAt": 1795181350616
+    "expiresAt": 1796046505781
   },
-  "bnb_sess_1792605277945_rv9r5komuq_bnjhf560q9q": {
-    "userId": "admin_primary",
-    "username": "B&B Family Salon Owner",
-    "email": "owner@bnbfamilysalon.com",
-    "expiresAt": 1795197277945
-  },
-  "bnb_sess_1792605278059_hwa65eo5dm_o1s78tx39mh": {
-    "userId": "admin_primary",
-    "username": "B&B Family Salon Owner",
-    "email": "owner@bnbfamilysalon.com",
-    "expiresAt": 1795197278059
-  },
-  "bnb_sess_1792605278182_tytgjgdxpgk_2x20g2w9xal": {
-    "userId": "admin_primary",
-    "username": "B&B Family Salon Owner",
-    "email": "owner@bnbfamilysalon.com",
-    "expiresAt": 1795197278182
-  },
-  "bnb_sess_1792605278294_bz8g9is27xt_smv0jpq375r": {
-    "userId": "admin_primary",
-    "username": "B&B Family Salon Owner",
-    "email": "owner@bnbfamilysalon.com",
-    "expiresAt": 1795197278294
-  },
-  "bnb_sess_1792605296927_c1vfzd5i6pp_515vmhmvb0r": {
-    "userId": "admin_primary",
-    "username": "B&B Family Salon Owner",
-    "email": "owner@bnbfamilysalon.com",
-    "expiresAt": 1795197296927
-  },
-  "bnb_sess_1792605307379_ufcvslsk8sp_f3rjhx2m8je": {
+  "bnb_sess_1793457229474_1mf8kcr04sm_d6wm03nb33": {
     "userId": "admin_primary",
     "username": "Naitik Sahu",
     "email": "naitiksahu054@gmail.com",
-    "expiresAt": 1795197307379
+    "expiresAt": 1796049229474
   },
-  "bnb_sess_1792605307493_foikjhhy83s_3bgy8ywnj2m": {
+  "bnb_sess_1793597930717_osd42yxr3an_hr34v5prbst": {
     "userId": "admin_primary",
     "username": "Naitik Sahu",
     "email": "naitiksahu054@gmail.com",
-    "expiresAt": 1795197307493
+    "expiresAt": 1796189930717
   },
-  "bnb_sess_1792605307595_k47plicl6u8_77ftkb5wz3": {
+  "bnb_sess_1793696512416_swl8gd3l4wi_8lgesc5rlf": {
     "userId": "admin_primary",
     "username": "Naitik Sahu",
     "email": "naitiksahu054@gmail.com",
-    "expiresAt": 1795197307595
+    "expiresAt": 1796288512416
   },
-  "bnb_sess_1792605307709_r3liyfnrsl_vuspx4kt8h": {
+  "bnb_sess_1793696618893_rbszxrstpd_p32fv370rx": {
     "userId": "admin_primary",
     "username": "Naitik Sahu",
     "email": "naitiksahu054@gmail.com",
-    "expiresAt": 1795197307709
-  },
-  "bnb_sess_1792642061134_e4pejyc4bfh_za1r6tsnxc9": {
-    "userId": "admin_primary",
-    "username": "Mr Naitik Sahu",
-    "email": "nsahu7000326707@gmail.com",
-    "expiresAt": 1795234061134
-  },
-  "bnb_sess_1793338845190_qn2wyb4njuc_ssejj503xv": {
-    "userId": "admin_primary",
-    "username": "Naitik Sahu",
-    "email": "naitiksahu054@gmail.com",
-    "expiresAt": 1795930845190
-  },
-  "bnb_sess_1793338856143_jjsi5cal7l_hkq348r0eao": {
-    "userId": "admin_primary",
-    "username": "Naitik Sahu",
-    "email": "naitiksahu054@gmail.com",
-    "expiresAt": 1795930856143
-  },
-  "bnb_sess_1793338874612_8hihacng2yy_8c46t5ethm3": {
-    "userId": "admin_primary",
-    "username": "Naitik Sahu",
-    "email": "naitiksahu054@gmail.com",
-    "expiresAt": 1795930874612
-  },
-  "bnb_sess_1793338889043_sr0yivpagta_adkecyqx8um": {
-    "userId": "admin_primary",
-    "username": "Naitik Sahu",
-    "email": "naitiksahu054@gmail.com",
-    "expiresAt": 1795930889043
-  },
-  "bnb_sess_1793445498591_nxv7p9vqcpr_0v88znyf355": {
-    "userId": "admin_primary",
-    "username": "Naitik Sahu",
-    "email": "naitiksahu054@gmail.com",
-    "expiresAt": 1796037498591
+    "expiresAt": 1796288618893
   }
 }

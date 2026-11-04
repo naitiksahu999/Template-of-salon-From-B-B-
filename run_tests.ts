@@ -41,7 +41,7 @@ async function api(pathUrl: string, options: any = {}) {
 
 async function run() {
   console.log('===========================================================');
-  console.log('  B&B FAMILY SALON - REAL AUTOMATED TEST SUITE EXECUTION   ');
+  console.log('  TASSEL UNISEX SALON - REAL AUTOMATED TEST SUITE EXECUTION ');
   console.log('===========================================================\n');
 
   let passed = 0;
@@ -140,6 +140,9 @@ async function run() {
       notes: 'Please keep appointment on schedule'
     })
   });
+  if (authBookingRes.status !== 200) {
+    console.error('authBookingRes failed:', authBookingRes.status, authBookingRes.body);
+  }
   assert(authBookingRes.status === 200, 'Booking with verified session succeeds (200 OK)');
   assert(Boolean(authBookingRes.body?.appointment?.bookingNumber), 'Booking returns reference number');
   assert(authBookingRes.body?.appointment?.customerId === customerId, 'Booking is linked to registered customer account');
@@ -439,13 +442,13 @@ async function run() {
   );
 
   // 3. Test Ownership Handover Tool
-  const newOwnerEmail = 'owner@bnbfamilysalon.com';
+  const newOwnerEmail = 'owner@tasselunisexsalon.com';
   const handoverRes = await api('/api/admin/email-hub', {
     method: 'PUT',
     headers: { Authorization: `Bearer ${adminToken}` },
     body: JSON.stringify({
       handoverOwnerEmail: newOwnerEmail,
-      handoverOwnerName: 'B&B Family Salon Owner',
+      handoverOwnerName: 'Tassel Unisex Salon Owner',
       handoverBookingAlert: true,
       handoverPublicContact: true,
       handoverAdminLogin: true,

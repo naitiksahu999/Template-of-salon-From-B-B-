@@ -22,42 +22,42 @@ export function generateWhatsAppBookingCard(
   cardType: WhatsAppCardType = 'general_update',
   customNote: string = ''
 ): string {
-  const salonTitle = settings?.salonName || 'B & B Family Salon';
-  const salonPhone = settings?.phone || '+91 91316 29031';
-  const salonAddress = settings?.address || '2nd Floor, Ultimate Arcade, F11-12, Kolar Road, Bhopal';
-  const salonLandmarks = settings?.landmarks || 'Near Sagar Gaire & Vishal Mega Mart';
-  const mapsUrl = settings?.googleMapsUrl || 'https://maps.google.com/?q=B%26B+Family+Salon+Bhopal';
+  const salonTitle = settings?.salonName || 'Tassel Unisex Salon';
+  const salonPhone = settings?.phone || '+91 78800 86990';
+  const salonAddress = settings?.address || 'Kolar Road, Good Shapard Kalan, Mandakini Colony, Bhopal';
+  const salonLandmarks = settings?.landmarks || 'Mandakini Colony, Kolar Road';
+  const mapsUrl = settings?.googleMapsUrl || 'https://www.google.co.in/maps/place/Tassel+Unisex+Salon,+Kolar+Rd,+Good+Shapard+Kalan,+Mandakini+Colony,+Kolar+Rd,+Bhopal,+Madhya+Pradesh+462042/@23.1823711,77.4175763,17z/';
 
-  let titleHeader = '*B&B FAMILY SALON - BOOKING UPDATE*';
+  let titleHeader = `*${salonTitle.toUpperCase()} - BOOKING UPDATE*`;
   let badgeLabel = 'APPOINTMENT STATUS UPDATE';
 
   switch (cardType) {
     case 'confirmed':
-      titleHeader = '✅ *B&B FAMILY SALON - BOOKING CONFIRMED* ✅';
+      titleHeader = `✅ *${salonTitle.toUpperCase()} - BOOKING CONFIRMED* ✅`;
       badgeLabel = 'CONFIRMED & RESERVED';
       break;
     case 'postponed':
-      titleHeader = '⏳ *B&B FAMILY SALON - APPOINTMENT POSTPONED* ⏳';
+      titleHeader = `⏳ *${salonTitle.toUpperCase()} - APPOINTMENT POSTPONED* ⏳`;
       badgeLabel = 'APPOINTMENT POSTPONED';
       break;
     case 'rescheduled':
-      titleHeader = '🗓️ *B&B FAMILY SALON - SCHEDULE RESCHEDULED* 🗓️';
+      titleHeader = `🗓️ *${salonTitle.toUpperCase()} - SCHEDULE RESCHEDULED* 🗓️`;
       badgeLabel = 'NEW TIME SLOT ALLOCATED';
       break;
     case 'reminder':
-      titleHeader = '⏰ *B&B FAMILY SALON - APPOINTMENT REMINDER* ⏰';
+      titleHeader = `⏰ *${salonTitle.toUpperCase()} - APPOINTMENT REMINDER* ⏰`;
       badgeLabel = 'UPCOMING SALON VISIT';
       break;
     case 'completed':
-      titleHeader = '✨ *B&B FAMILY SALON - THANK YOU FOR VISITING* ✨';
+      titleHeader = `✨ *${salonTitle.toUpperCase()} - THANK YOU FOR VISITING* ✨`;
       badgeLabel = 'SERVICE COMPLETED';
       break;
     case 'cancelled':
-      titleHeader = '❌ *B&B FAMILY SALON - BOOKING CANCELLED* ❌';
+      titleHeader = `❌ *${salonTitle.toUpperCase()} - BOOKING CANCELLED* ❌`;
       badgeLabel = 'CANCELLED';
       break;
     case 'pending':
-      titleHeader = '⏳ *B&B FAMILY SALON - BOOKING REQUEST RECEIVED* ⏳';
+      titleHeader = `⏳ *${salonTitle.toUpperCase()} - BOOKING REQUEST RECEIVED* ⏳`;
       badgeLabel = 'PENDING SALON CONFIRMATION';
       break;
   }
@@ -151,6 +151,6 @@ export function generateCustomerInquiryWhatsAppMessage(
   appt: Appointment,
   settings: SiteSettings | null | undefined
 ): string {
-  const salonTitle = settings?.salonName || 'B & B Family Salon';
+  const salonTitle = settings?.salonName || 'Tassel Unisex Salon';
   return `Hello ${salonTitle}, I have booked appointment #${appt.bookingNumber} (${appt.serviceName}) on your website and would like to speak with the salon admin. Could you please assist me?`;
 }

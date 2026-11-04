@@ -38,18 +38,18 @@ data class BlockedDateEntity(
 @Serializable
 data class SalonSettingsEntity(
     val id: String = "salon_settings_singleton",
-    @SerialName("salon_name") val salonName: String = "B & B Family Salon",
-    @SerialName("alternate_name") val alternateName: String? = null,
-    val tagline: String? = null,
-    val phone: String = "+91 91316 29031",
-    val email: String? = "contact@bbfamilysalon.com",
-    val address: String = "2nd Floor, Ultimate Arcade, F11-12, Kolar Road, Bhopal",
-    val landmarks: String? = "Near Sagar Gaire and Vishal Mega Mart",
+    @SerialName("salon_name") val salonName: String = "Tassel Unisex Salon",
+    @SerialName("alternate_name") val alternateName: String? = "Tassel Salon Bhopal",
+    val tagline: String? = "The Art of Refined Grooming & Beauty Sanctuary in Bhopal",
+    val phone: String = "+91 78800 86990",
+    val email: String? = "contact@tasselunisexsalon.com",
+    val address: String = "Kolar Road, Good Shapard Kalan, Mandakini Colony, Bhopal",
+    val landmarks: String? = "Mandakini Colony, Kolar Road",
     val city: String = "Bhopal",
     val state: String = "Madhya Pradesh",
     val pincode: String = "462042",
-    @SerialName("google_maps_url") val googleMapsUrl: String? = null,
-    @SerialName("admin_whatsapp_phone") val adminWhatsAppPhone: String? = "+91 91316 29031",
+    @SerialName("google_maps_url") val googleMapsUrl: String? = "https://www.google.co.in/maps/place/Tassel+Unisex+Salon,+Kolar+Rd,+Good+Shapard+Kalan,+Mandakini+Colony,+Kolar+Rd,+Bhopal,+Madhya+Pradesh+462042/@23.1823711,77.4175763,17z/",
+    @SerialName("admin_whatsapp_phone") val adminWhatsAppPhone: String? = "+91 78800 86990",
     @SerialName("auto_confirm_bookings") val autoConfirmBookings: Boolean = true
 )
 

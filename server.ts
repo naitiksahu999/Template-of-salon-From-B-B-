@@ -12,10 +12,10 @@ import {
   getSupabaseMigrationSql,
   syncAppointmentToSupabase,
   syncServicesToSupabase,
-  syncCategoriesToSupabase,
   syncBusinessHoursToSupabase,
   syncBlockedDatesToSupabase,
   syncSettingsToSupabase,
+  syncCategoriesToSupabase,
   deleteAppointmentFromSupabase,
   clearAppointmentsFromSupabase,
   syncAdminNotificationToSupabase,
@@ -56,7 +56,7 @@ import {
   revokeCustomerSessionToken,
   getCustomerFromRequest
 } from './server/auth.ts';
-import type { StaffMember, AdminNotification, Review, ServiceCategory } from './src/types/index.ts';
+import type { StaffMember, AdminNotification, Review, Customer } from './src/types/index.ts';
 
 dotenv.config();
 
@@ -608,19 +608,16 @@ async function startServer() {
         createdAt: new Date().toISOString()
       };
 
-      // 1. Commit customer profile to Supabase persistent table BEFORE proceeding
-      const syncRes = await syncCustomerToSupabase(newCustomer);
-      if (!syncRes.synced) {
-        console.error(`[Supabase Customer Registration Error]:`, syncRes.error);
-        res.status(500).json({
-          error: `Account registration failed to save in persistent database: ${syncRes.error || 'Database write rejected'}. Please retry.`
-        });
-        return;
-      }
-
-      // If Supabase retained or matched a stable ID, adopt it
-      if (syncRes.details?.id && syncRes.details.id !== newCustomer.id) {
-        newCustomer.id = syncRes.details.id;
+      // 1. Sync customer profile to Supabase persistent table if table exists
+      try {
+        const syncRes = await syncCustomerToSupabase(newCustomer);
+        if (syncRes.synced && syncRes.details?.id && syncRes.details.id !== newCustomer.id) {
+          newCustomer.id = syncRes.details.id;
+        } else if (!syncRes.synced) {
+          console.warn(`[Supabase Customer Registration Notice]:`, syncRes.error, '- customer record preserved in salon database.');
+        }
+      } catch (syncErr: any) {
+        console.warn(`[Supabase Customer Registration Warning]:`, syncErr.message);
       }
 
       db.customers.push(newCustomer);
@@ -966,7 +963,7 @@ async function startServer() {
                 if (existingIdx === -1) {
                   db.appointments.push({
                     id: ca.id,
-                    bookingNumber: ca.booking_number || `BB-${ca.id}`,
+                    bookingNumber: ca.booking_number || `TS-${ca.id}`,
                     customerId: ca.customer_id || targetCustomerId,
                     customerName: ca.customer_name || 'Customer',
                     customerPhone: ca.customer_phone || targetPhone,
@@ -1104,7 +1101,7 @@ async function startServer() {
 
       if (diffHours < deadlineHours) {
         res.status(400).json({
-          error: `Cancellation deadline passed. Cancellations must be made at least ${deadlineHours} hour(s) before your scheduled time. Please call salon reception directly at ${db.settings.phone || '+91 91316 29031'}.`
+          error: `Cancellation deadline passed. Cancellations must be made at least ${deadlineHours} hour(s) before your scheduled time. Please call salon reception directly at ${db.settings.phone || '+91 78800 86990'}.`
         });
         return;
       }
@@ -1117,7 +1114,7 @@ async function startServer() {
       appt.updatedAt = new Date().toISOString();
 
       // Record in notificationsLog
-      const notifMsg = `B&B Family Salon: Booking #${appt.bookingNumber} for ${appt.serviceName} on ${appt.date} at ${appt.time} was cancelled by customer. Reason: "${reason}". Reserved slot has been safely released.`;
+      const notifMsg = `Tassel Unisex Salon: Booking #${appt.bookingNumber} for ${appt.serviceName} on ${appt.date} at ${appt.time} was cancelled by customer. Reason: "${reason}". Reserved slot has been safely released.`;
       db.notificationsLog.push({
         id: `notif_${Date.now()}`,
         appointmentId: appt.id,
@@ -1799,19 +1796,19 @@ async function startServer() {
         return (isNaN(h) ? 0 : h) * 60 + (isNaN(m) ? 0 : m);
       };
 
-      // Today's activity: Earliest appointment prominently at the top, followed by later appointments
+      // Today's activity strictly in Indian Standard Time (Asia/Kolkata)
       const todayAppointmentsList = realAppointments
-        .filter((a) => a.date === istTodayStr || a.date === localTodayStr)
+        .filter((a) => a.date === istTodayStr)
         .sort((a, b) => parseTimeToMinutes(a.time) - parseTimeToMinutes(b.time));
 
       const todayAppointments = todayAppointmentsList;
 
       // Truly Upcoming (Future): Only genuinely future appointments
-      // (future date, or today with start time > current IST time) and active (not completed, cancelled, or rejected)
+      // (future IST date, or today with start time strictly > currentMinutesIST) and active (not completed, cancelled, or rejected)
       const upcomingAppointments = realAppointments.filter((a) => {
         if (a.status === 'cancelled' || a.status === 'completed' || (a.status as string) === 'rejected') return false;
         if (a.date > istTodayStr) return true;
-        if (a.date === istTodayStr || a.date === localTodayStr) {
+        if (a.date === istTodayStr) {
           const apptStart = parseTimeToMinutes(a.time);
           return apptStart > currentMinutesIST;
         }
@@ -1873,12 +1870,18 @@ async function startServer() {
         const cloudAppts = await fetchSupabaseAppointments();
         if (Array.isArray(cloudAppts) && cloudAppts.length > 0) {
           const deletedApptSet = new Set(db.deletedAppointmentIds || []);
+          const deletedBNumSet = new Set(db.deletedBookingNumbers || []);
           cloudAppts.forEach((ca: any) => {
-            if (!deletedApptSet.has(ca.id)) {
-              const existingIdx = db.appointments.findIndex((a) => a.id === ca.id);
+            if (
+              ca.id &&
+              ca.status !== 'deleted' &&
+              !deletedApptSet.has(ca.id) &&
+              (!ca.booking_number || !deletedBNumSet.has(ca.booking_number))
+            ) {
+              const existingIdx = db.appointments.findIndex((a) => a.id === ca.id || (ca.booking_number && a.bookingNumber === ca.booking_number));
               const mapped: any = {
                 id: ca.id,
-                bookingNumber: ca.booking_number || `BB-${ca.id}`,
+                bookingNumber: ca.booking_number || `TS-${ca.id}`,
                 customerId: ca.customer_id,
                 customerName: ca.customer_name || 'Customer',
                 customerPhone: ca.customer_phone || '',
@@ -1909,6 +1912,9 @@ async function startServer() {
               } else {
                 db.appointments.push(mapped);
               }
+            } else if (ca.id && (ca.status === 'deleted' || deletedApptSet.has(ca.id) || (ca.booking_number && deletedBNumSet.has(ca.booking_number)))) {
+              // Ensure removed from Supabase in background
+              deleteAppointmentFromSupabase(ca.id, ca.booking_number).catch(() => null);
             }
           });
         }
@@ -2037,7 +2043,7 @@ async function startServer() {
       current.updatedAt = new Date().toISOString();
 
       // Log notification
-      const notifMsg = `B&B Family Salon: Appointment #${current.bookingNumber} for ${current.customerName} status updated from ${previousStatus} to ${current.status}.`;
+      const notifMsg = `Tassel Unisex Salon: Appointment #${current.bookingNumber} for ${current.customerName} status updated from ${previousStatus} to ${current.status}.`;
       db.notificationsLog.push({
         id: `notif_${Date.now()}`,
         appointmentId: current.id,
@@ -2142,17 +2148,23 @@ async function startServer() {
       const target = db.appointments.find((a) => a.id === id);
       const bookingNumber = target?.bookingNumber;
 
-      // Add to deletion registry so it NEVER resurrects on container restart (ID only, NEVER generic sequence numbers)
+      // Add to deletion registry so it NEVER resurrects on container restart
       db.deletedAppointmentIds = db.deletedAppointmentIds || [];
       if (!db.deletedAppointmentIds.includes(id)) {
         db.deletedAppointmentIds.push(id);
       }
+      if (bookingNumber) {
+        db.deletedBookingNumbers = db.deletedBookingNumbers || [];
+        if (!db.deletedBookingNumbers.includes(bookingNumber)) {
+          db.deletedBookingNumbers.push(bookingNumber);
+        }
+      }
 
-      db.appointments = db.appointments.filter((a) => a.id !== id);
-      await saveDb(db);
-
-      // Await permanent deletion in Supabase
+      db.appointments = db.appointments.filter((a) => a.id !== id && (!bookingNumber || a.bookingNumber !== bookingNumber));
+      
+      // Await permanent deletion in Supabase first
       await deleteAppointmentFromSupabase(id, bookingNumber);
+      await saveDb(db);
 
       res.json({ success: true, message: `Appointment ${bookingNumber || id} deleted permanently.` });
     } catch (err: any) {
@@ -2167,15 +2179,20 @@ async function startServer() {
       const db = await getDb();
       const count = db.appointments.length;
       const idsToDelete = db.appointments.map((a) => a.id);
+      const bookingNumbersToDelete = db.appointments.map((a) => a.bookingNumber).filter(Boolean);
 
       db.deletedAppointmentIds = db.deletedAppointmentIds || [];
       idsToDelete.forEach((id) => {
         if (!db.deletedAppointmentIds!.includes(id)) db.deletedAppointmentIds!.push(id);
       });
+      db.deletedBookingNumbers = db.deletedBookingNumbers || [];
+      bookingNumbersToDelete.forEach((bNum) => {
+        if (!db.deletedBookingNumbers!.includes(bNum)) db.deletedBookingNumbers!.push(bNum);
+      });
 
       db.appointments = [];
+      await clearAppointmentsFromSupabase(idsToDelete, bookingNumbersToDelete);
       await saveDb(db);
-      await clearAppointmentsFromSupabase(idsToDelete);
       res.json({ success: true, count, message: `Successfully deleted all ${count} bookings.` });
     } catch (err: any) {
       res.status(500).json({ error: err.message });
@@ -2208,11 +2225,11 @@ async function startServer() {
     }
   });
 
-  // Categories Management (Admin)
+  // Service Categories Management (Permanent in Supabase & Local DB)
   app.get('/api/admin/categories', requireAdminAuth, async (req: AuthenticatedRequest, res: Response) => {
     try {
       const db = await getDb();
-      const sorted = [...db.categories].sort((a, b) => a.sortOrder - b.sortOrder);
+      const sorted = [...(db.categories || [])].sort((a, b) => a.sortOrder - b.sortOrder);
       res.json(sorted);
     } catch (err: any) {
       res.status(500).json({ error: err.message });
@@ -2223,43 +2240,37 @@ async function startServer() {
     try {
       const db = await getDb();
       const { name, description } = req.body;
-
       if (!name || typeof name !== 'string' || !name.trim()) {
-        res.status(400).json({ error: 'Category name is required.' });
+        res.status(400).json({ error: 'Valid category name is required.' });
         return;
       }
 
       const trimmedName = name.trim();
-      const existing = db.categories.find(
-        (c) => c.name.toLowerCase() === trimmedName.toLowerCase()
-      );
-      if (existing) {
-        res.status(200).json(existing);
-        return;
-      }
-
-      const slug =
-        trimmedName
-          .toLowerCase()
-          .replace(/[^a-z0-9]+/g, '-')
-          .replace(/(^-|-$)/g, '') || `cat-${Date.now()}`;
-
-      const maxSortOrder = db.categories.reduce((max, c) => Math.max(max, c.sortOrder || 0), 0);
-
-      const newCategory: ServiceCategory = {
+      // Generate clean url-friendly slug
+      const slug = trimmedName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || `category-${Date.now()}`;
+      
+      const newCategory = {
         id: `cat_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
         name: trimmedName,
         slug,
-        description: description?.trim() || `Custom treatment category for ${trimmedName}.`,
-        sortOrder: maxSortOrder + 1
+        description: description?.trim() || '',
+        sortOrder: (db.categories?.length || 0) + 1
       };
 
+      if (!db.categories) {
+        db.categories = [];
+      }
       db.categories.push(newCategory);
       await saveDb(db);
-      syncCategoriesToSupabase(db.categories).catch((err) =>
-        console.error('[Supabase AutoSync Categories Error]:', err)
-      );
 
+      // Async sync to Supabase categories table
+      try {
+        await syncCategoriesToSupabase(db.categories);
+      } catch (cloudErr: any) {
+        console.warn('[Supabase Category Sync Notice]:', cloudErr?.message);
+      }
+
+      console.log(`[Admin] Successfully created custom category: "${newCategory.name}" (${newCategory.id})`);
       res.status(201).json(newCategory);
     } catch (err: any) {
       res.status(500).json({ error: err.message });
@@ -2275,19 +2286,7 @@ async function startServer() {
   app.post('/api/admin/services', requireAdminAuth, async (req: AuthenticatedRequest, res: Response) => {
     try {
       const db = await getDb();
-      const {
-        name,
-        categoryId,
-        description,
-        price,
-        durationMinutes,
-        imageUrl,
-        isActive,
-        isFeatured,
-        priceType,
-        minPrice,
-        maxPrice
-      } = req.body;
+      const { name, categoryId, description, price, priceType, minPrice, maxPrice, durationMinutes, imageUrl, isActive, isFeatured } = req.body;
 
       if (!name || !categoryId || !durationMinutes) {
         res.status(400).json({ error: 'Name, category, and duration are required.' });
@@ -2295,39 +2294,39 @@ async function startServer() {
       }
 
       const isRange = priceType === 'range';
-      let effectivePrice: number;
-      let effectiveMinPrice: number | undefined = undefined;
-      let effectiveMaxPrice: number | undefined = undefined;
+      let finalPrice = 0;
+      let finalMinPrice = 0;
+      let finalMaxPrice = 0;
+      const finalPriceType: 'exact' | 'range' = isRange ? 'range' : 'exact';
 
       if (isRange) {
-        const min = Number(minPrice);
-        const max = Number(maxPrice);
-        if (isNaN(min) || isNaN(max)) {
-          res.status(400).json({ error: 'Both Minimum and Maximum prices are required for price range.' });
+        finalMinPrice = Number(minPrice !== undefined ? minPrice : price);
+        finalMaxPrice = Number(maxPrice !== undefined ? maxPrice : (price !== undefined ? price : minPrice));
+
+        if (isNaN(finalMinPrice) || finalMinPrice < 0 || isNaN(finalMaxPrice) || finalMaxPrice < 0) {
+          res.status(400).json({ error: 'Minimum and maximum prices must be positive numbers.' });
           return;
         }
-        if (min < 0 || max < 0) {
-          res.status(400).json({ error: 'Prices must be positive numbers (₹0 or greater).' });
+
+        if (finalMinPrice > finalMaxPrice) {
+          res.status(400).json({ error: 'Minimum price cannot exceed maximum price.' });
           return;
         }
-        if (min > max) {
-          res.status(400).json({ error: 'Minimum price cannot exceed the maximum price.' });
-          return;
-        }
-        effectivePrice = min;
-        effectiveMinPrice = min;
-        effectiveMaxPrice = max;
+
+        finalPrice = finalMinPrice;
       } else {
-        if (price === undefined || price === null || isNaN(Number(price))) {
+        const rawPrice = price !== undefined ? price : minPrice;
+        if (rawPrice === undefined) {
           res.status(400).json({ error: 'Price is required.' });
           return;
         }
-        const numPrice = Number(price);
-        if (numPrice < 0) {
-          res.status(400).json({ error: 'Price must be a positive number (₹0 or greater).' });
+        finalPrice = Number(rawPrice);
+        if (isNaN(finalPrice) || finalPrice < 0) {
+          res.status(400).json({ error: 'Price must be a valid positive number.' });
           return;
         }
-        effectivePrice = numPrice;
+        finalMinPrice = finalPrice;
+        finalMaxPrice = finalPrice;
       }
 
       const newService = {
@@ -2335,10 +2334,10 @@ async function startServer() {
         categoryId,
         name: name.trim(),
         description: description || '',
-        price: effectivePrice,
-        priceType: isRange ? ('range' as const) : ('exact' as const),
-        minPrice: effectiveMinPrice,
-        maxPrice: effectiveMaxPrice,
+        price: finalPrice,
+        priceType: finalPriceType,
+        minPrice: finalMinPrice,
+        maxPrice: finalMaxPrice,
         durationMinutes: Number(durationMinutes),
         imageUrl: imageUrl || '/src/assets/images/salon_hair_styling_1790779479714.jpg',
         isActive: isActive !== undefined ? Boolean(isActive) : true,
@@ -2367,62 +2366,43 @@ async function startServer() {
       }
 
       const s = db.services[index];
-      const {
-        name,
-        categoryId,
-        description,
-        price,
-        durationMinutes,
-        imageUrl,
-        isActive,
-        isFeatured,
-        priceType,
-        minPrice,
-        maxPrice
-      } = req.body;
+      const { name, categoryId, description, price, priceType, minPrice, maxPrice, durationMinutes, imageUrl, isActive, isFeatured } = req.body;
 
       if (name !== undefined) s.name = name;
       if (categoryId !== undefined) s.categoryId = categoryId;
       if (description !== undefined) s.description = description;
 
-      if (priceType !== undefined) {
-        if (priceType === 'range') {
-          const min = Number(minPrice !== undefined ? minPrice : s.minPrice ?? s.price);
-          const max = Number(maxPrice !== undefined ? maxPrice : s.maxPrice ?? s.price);
-          if (isNaN(min) || isNaN(max)) {
-            res.status(400).json({ error: 'Both Minimum and Maximum prices are required for price range.' });
-            return;
-          }
-          if (min < 0 || max < 0) {
-            res.status(400).json({ error: 'Prices must be positive numbers (₹0 or greater).' });
-            return;
-          }
-          if (min > max) {
-            res.status(400).json({ error: 'Minimum price cannot exceed the maximum price.' });
-            return;
-          }
-          s.priceType = 'range';
-          s.minPrice = min;
-          s.maxPrice = max;
-          s.price = min;
-        } else {
-          const numPrice = Number(price !== undefined ? price : s.price);
-          if (isNaN(numPrice) || numPrice < 0) {
-            res.status(400).json({ error: 'Price must be a positive number (₹0 or greater).' });
-            return;
-          }
-          s.priceType = 'exact';
-          s.price = numPrice;
-          s.minPrice = undefined;
-          s.maxPrice = undefined;
-        }
-      } else if (price !== undefined) {
-        const numPrice = Number(price);
-        if (isNaN(numPrice) || numPrice < 0) {
-          res.status(400).json({ error: 'Price must be a positive number (₹0 or greater).' });
+      // Price and range handling
+      const targetType = priceType !== undefined ? priceType : (s.priceType || 'exact');
+      if (targetType === 'range') {
+        const numMin = Number(minPrice !== undefined ? minPrice : (s.minPrice !== undefined ? s.minPrice : s.price));
+        const numMax = Number(maxPrice !== undefined ? maxPrice : (s.maxPrice !== undefined ? s.maxPrice : s.price));
+
+        if (isNaN(numMin) || numMin < 0 || isNaN(numMax) || numMax < 0) {
+          res.status(400).json({ error: 'Minimum and maximum prices must be positive numbers.' });
           return;
         }
+
+        if (numMin > numMax) {
+          res.status(400).json({ error: 'Minimum price cannot exceed maximum price.' });
+          return;
+        }
+
+        s.priceType = 'range';
+        s.minPrice = numMin;
+        s.maxPrice = numMax;
+        s.price = numMin;
+      } else {
+        const rawPrice = price !== undefined ? price : (minPrice !== undefined ? minPrice : s.price);
+        const numPrice = Number(rawPrice);
+        if (isNaN(numPrice) || numPrice < 0) {
+          res.status(400).json({ error: 'Price must be a valid positive number.' });
+          return;
+        }
+        s.priceType = 'exact';
         s.price = numPrice;
+        s.minPrice = numPrice;
+        s.maxPrice = numPrice;
       }
 
       if (durationMinutes !== undefined) s.durationMinutes = Number(durationMinutes);
@@ -2530,37 +2510,77 @@ async function startServer() {
     try {
       const db = await getDb();
       const deletedCustSet = new Set(db.deletedCustomerIds || []);
+      const deletedPhoneSet = new Set(db.deletedCustomerPhones || []);
+      const deletedEmailSet = new Set(db.deletedCustomerEmails || []);
+
+      // Filter local db.customers first against tombstones
+      db.customers = (db.customers || []).filter((c) => {
+        if (deletedCustSet.has(c.id)) return false;
+        const cDigits = c.phone ? c.phone.replace(/\D/g, '').slice(-10) : '';
+        if (cDigits && deletedPhoneSet.has(cDigits)) return false;
+        const cEmail = c.email ? c.email.trim().toLowerCase() : '';
+        if (cEmail && deletedEmailSet.has(cEmail)) return false;
+        return true;
+      });
+
+      // Deduplicate local customers by 10-digit phone number
+      const uniqueMap = new Map<string, Customer>();
+      db.customers.forEach((c) => {
+        const cDigits = c.phone ? c.phone.replace(/\D/g, '').slice(-10) : c.id;
+        if (!uniqueMap.has(cDigits)) {
+          uniqueMap.set(cDigits, c);
+        } else {
+          const existing = uniqueMap.get(cDigits)!;
+          existing.totalBookings = Math.max(existing.totalBookings || 1, c.totalBookings || 1);
+          if (c.lastBookingDate && (!existing.lastBookingDate || c.lastBookingDate > existing.lastBookingDate)) {
+            existing.lastBookingDate = c.lastBookingDate;
+          }
+        }
+      });
+      db.customers = Array.from(uniqueMap.values());
 
       // Pull latest persistent customer records directly from Supabase
       try {
         const cloudCustomers = await fetchSupabaseCustomers();
         if (Array.isArray(cloudCustomers) && cloudCustomers.length > 0) {
           cloudCustomers.forEach((cc: any) => {
-            if (cc.id && !deletedCustSet.has(cc.id)) {
-              const cleanPhone = cc.phone ? cc.phone.trim() : '';
-              const existingIdx = db.customers.findIndex(
-                (c) => c.id === cc.id || (cleanPhone && c.phone === cleanPhone)
-              );
-              if (existingIdx !== -1) {
-                db.customers[existingIdx].name = cc.name || db.customers[existingIdx].name;
-                db.customers[existingIdx].totalBookings = cc.total_bookings ?? db.customers[existingIdx].totalBookings;
-                db.customers[existingIdx].lastBookingDate = cc.last_booking_date || db.customers[existingIdx].lastBookingDate;
-                db.customers[existingIdx].isRegistered = true;
-                db.customers[existingIdx].isVerified = true;
-              } else {
-                db.customers.push({
-                  id: cc.id,
-                  name: cc.name,
-                  phone: cleanPhone,
-                  email: cc.email || undefined,
-                  totalBookings: cc.total_bookings || 1,
-                  lastBookingDate: cc.last_booking_date || undefined,
-                  createdAt: cc.created_at || new Date().toISOString(),
-                  isRegistered: true,
-                  isVerified: true,
-                  notes: ''
-                });
-              }
+            if (!cc.id) return;
+            const ccPhone = cc.phone ? String(cc.phone).trim() : '';
+            const ccDigits = ccPhone.replace(/\D/g, '').slice(-10);
+            const ccEmail = cc.email ? String(cc.email).trim().toLowerCase() : '';
+
+            // If tombstoned as deleted, do NOT re-import! Clean up in Supabase
+            if (
+              deletedCustSet.has(cc.id) ||
+              (ccDigits && deletedPhoneSet.has(ccDigits)) ||
+              (ccEmail && deletedEmailSet.has(ccEmail))
+            ) {
+              deleteCustomerFromSupabase(cc.id, ccPhone, ccEmail).catch(() => null);
+              return;
+            }
+
+            const existingIdx = db.customers.findIndex(
+              (c) => c.id === cc.id || (ccDigits && c.phone.replace(/\D/g, '').endsWith(ccDigits))
+            );
+            if (existingIdx !== -1) {
+              db.customers[existingIdx].name = cc.name || db.customers[existingIdx].name;
+              db.customers[existingIdx].totalBookings = cc.total_bookings ?? db.customers[existingIdx].totalBookings;
+              db.customers[existingIdx].lastBookingDate = cc.last_booking_date || db.customers[existingIdx].lastBookingDate;
+              db.customers[existingIdx].isRegistered = true;
+              db.customers[existingIdx].isVerified = true;
+            } else {
+              db.customers.push({
+                id: cc.id,
+                name: cc.name,
+                phone: ccPhone,
+                email: cc.email || undefined,
+                totalBookings: cc.total_bookings || 1,
+                lastBookingDate: cc.last_booking_date || undefined,
+                createdAt: cc.created_at || new Date().toISOString(),
+                isRegistered: true,
+                isVerified: true,
+                notes: ''
+              });
             }
           });
         }
@@ -2569,7 +2589,7 @@ async function startServer() {
       }
 
       const registeredOnly = db.customers.filter(
-        (c) => !deletedCustSet.has(c.id) && (c.isRegistered || c.isVerified)
+        (c) => (c.isRegistered || c.isVerified)
       );
       res.json(registeredOnly);
     } catch (err: any) {
@@ -2610,9 +2630,26 @@ async function startServer() {
         return;
       }
 
+      const rawPhone = customer.phone ? String(customer.phone).trim() : '';
+      const digits = rawPhone.replace(/\D/g, '').slice(-10);
+      const email = customer.email ? String(customer.email).trim().toLowerCase() : '';
+
+      // Find ALL duplicate records of this customer in local database
+      const matchingLocalCustomers = db.customers.filter((c) => {
+        if (c.id === id) return true;
+        const cDigits = c.phone ? c.phone.replace(/\D/g, '').slice(-10) : '';
+        if (digits && cDigits && cDigits === digits) return true;
+        const cEmail = c.email ? c.email.trim().toLowerCase() : '';
+        if (email && cEmail && cEmail === email) return true;
+        return false;
+      });
+      const allTargetIds = Array.from(new Set([id, ...matchingLocalCustomers.map((c) => c.id)]));
+
       const { cascadeBookings, force } = req.query;
       const linkedAppointments = db.appointments.filter(
-        (a) => a.customerId === id || (customer.phone && a.customerPhone === customer.phone)
+        (a) =>
+          allTargetIds.includes(a.customerId || '') ||
+          (digits && a.customerPhone && a.customerPhone.replace(/\D/g, '').endsWith(digits))
       );
 
       const activeBookings = linkedAppointments.filter(
@@ -2632,9 +2669,14 @@ async function startServer() {
       // If cascadeBookings is requested, permanently delete linked bookings
       if (cascadeBookings === 'true' && linkedAppointments.length > 0) {
         const apptIds = linkedAppointments.map((a) => a.id);
+        const bNums = linkedAppointments.map((a) => a.bookingNumber).filter(Boolean);
         db.deletedAppointmentIds = db.deletedAppointmentIds || [];
         apptIds.forEach((aId) => {
           if (!db.deletedAppointmentIds!.includes(aId)) db.deletedAppointmentIds!.push(aId);
+        });
+        db.deletedBookingNumbers = db.deletedBookingNumbers || [];
+        bNums.forEach((bn) => {
+          if (!db.deletedBookingNumbers!.includes(bn)) db.deletedBookingNumbers!.push(bn);
         });
         db.appointments = db.appointments.filter((a) => !apptIds.includes(a.id));
         for (const appt of linkedAppointments) {
@@ -2642,19 +2684,51 @@ async function startServer() {
         }
       }
 
-      // Track in deleted customer registry (ID only, NEVER phone number)
+      // Track in deletion registries
       db.deletedCustomerIds = db.deletedCustomerIds || [];
-      if (!db.deletedCustomerIds.includes(id)) {
-        db.deletedCustomerIds.push(id);
+      allTargetIds.forEach((tId) => {
+        if (!db.deletedCustomerIds!.includes(tId)) {
+          db.deletedCustomerIds!.push(tId);
+        }
+      });
+
+      if (digits) {
+        db.deletedCustomerPhones = db.deletedCustomerPhones || [];
+        if (!db.deletedCustomerPhones.includes(digits)) {
+          db.deletedCustomerPhones.push(digits);
+        }
       }
 
-      db.customers = db.customers.filter((c) => c.id !== id);
+      if (email) {
+        db.deletedCustomerEmails = db.deletedCustomerEmails || [];
+        if (!db.deletedCustomerEmails.includes(email)) {
+          db.deletedCustomerEmails.push(email);
+        }
+      }
+
+      // Filter out all matching records from local database
+      db.customers = db.customers.filter((c) => {
+        if (allTargetIds.includes(c.id)) return false;
+        const cDigits = c.phone ? c.phone.replace(/\D/g, '').slice(-10) : '';
+        if (digits && cDigits && cDigits === digits) return false;
+        const cEmail = c.email ? c.email.trim().toLowerCase() : '';
+        if (email && cEmail && cEmail === email) return false;
+        return true;
+      });
+
+      // Synchronize deletion with Supabase cloud table
+      const supaResult = await deleteCustomerFromSupabase(id, rawPhone, email);
+      if (supaResult.deletedIds && supaResult.deletedIds.length > 0) {
+        supaResult.deletedIds.forEach((sId) => {
+          if (!db.deletedCustomerIds!.includes(sId)) db.deletedCustomerIds!.push(sId);
+        });
+      }
+
       await saveDb(db);
-      await deleteCustomerFromSupabase(id, customer.phone);
 
       res.json({
         success: true,
-        message: `Client "${customer.name}" has been permanently removed.`
+        message: `Client "${customer.name}" and all duplicate records have been permanently removed.`
       });
     } catch (err: any) {
       console.error('[Admin Customer Delete Error]:', err);
@@ -2886,7 +2960,7 @@ async function startServer() {
         rating: Number(rating) || 5.0,
         bio: String(bio || '').trim(),
         imageUrl: String(imageUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80').trim(),
-        phone: phone ? String(phone).trim() : '+91 91316 29031',
+        phone: phone ? String(phone).trim() : '+91 78800 86990',
         isActive: isActive !== undefined ? Boolean(isActive) : true,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
@@ -2987,7 +3061,13 @@ async function startServer() {
   app.get('/api/admin/notifications-log', requireAdminAuth, async (req: AuthenticatedRequest, res: Response) => {
     const db = await getDb();
     const deletedSet = new Set(db.deletedLogIds || []);
-    const filtered = (db.notificationsLog || []).filter((l) => !deletedSet.has(l.id));
+    const clearedTime = db.logsClearedAt ? new Date(db.logsClearedAt).getTime() : 0;
+    const filtered = (db.notificationsLog || []).filter((l) => {
+      if (deletedSet.has(l.id)) return false;
+      if (clearedTime && new Date(l.createdAt).getTime() <= clearedTime) return false;
+      return true;
+    });
+    db.notificationsLog = filtered;
     const sorted = [...filtered].sort(
       (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
@@ -3020,6 +3100,7 @@ async function startServer() {
         }
       });
       db.notificationsLog = [];
+      db.logsClearedAt = new Date().toISOString();
       await saveDb(db);
       res.json({ success: true, message: 'All notification logs permanently deleted' });
     } catch (err: any) {
@@ -3033,9 +3114,14 @@ async function startServer() {
       const db = await getDb();
       let notifs = db.adminNotifications || [];
       const deletedSet = new Set(db.deletedNotificationIds || []);
+      const clearedTime = db.notificationsClearedAt ? new Date(db.notificationsClearedAt).getTime() : 0;
 
-      // Filter out any locally deleted notification IDs
-      notifs = notifs.filter((n) => !deletedSet.has(n.id));
+      // Filter out locally deleted notification IDs and cleared timestamps
+      notifs = notifs.filter((n) => {
+        if (deletedSet.has(n.id)) return false;
+        if (clearedTime && new Date(n.createdAt).getTime() <= clearedTime) return false;
+        return true;
+      });
 
       // Try hydrating from Supabase cloud notifications if available
       try {
@@ -3044,7 +3130,11 @@ async function startServer() {
           const map = new Map<string, AdminNotification>();
           notifs.forEach((n) => map.set(n.id, n));
           cloudNotifs.forEach((cn) => {
-            if (!deletedSet.has(cn.id)) {
+            const isTombstoned =
+              deletedSet.has(cn.id) ||
+              (clearedTime > 0 && new Date(cn.createdAt).getTime() <= clearedTime);
+
+            if (!isTombstoned) {
               if (map.has(cn.id)) {
                 const local = map.get(cn.id)!;
                 map.set(cn.id, { ...local, isRead: local.isRead || cn.isRead });
@@ -3061,6 +3151,7 @@ async function startServer() {
         // Fall back cleanly to local
       }
 
+      db.adminNotifications = notifs;
       notifs.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
       const unreadCount = notifs.filter((n) => !n.isRead).length;
 
@@ -3145,7 +3236,24 @@ async function startServer() {
             db.deletedNotificationIds!.push(id);
           }
         });
+
+        // Also query Supabase to record any extra notification IDs currently in the cloud
+        try {
+          const client = getSupabase();
+          if (client) {
+            const { data: cloudRows } = await client.from('admin_notifications').select('id');
+            if (Array.isArray(cloudRows)) {
+              cloudRows.forEach((r: any) => {
+                if (r.id && !db.deletedNotificationIds!.includes(r.id)) {
+                  db.deletedNotificationIds!.push(r.id);
+                }
+              });
+            }
+          }
+        } catch {}
+
         db.adminNotifications = [];
+        db.notificationsClearedAt = new Date().toISOString();
         await deleteAllSupabaseAdminNotifications(false);
         await saveDb(db);
         res.json({ success: true, message: 'All notifications permanently erased' });
@@ -3453,7 +3561,7 @@ async function startServer() {
   }
 
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`B&B Family Salon server running on http://0.0.0.0:${PORT}`);
+    console.log(`Tassel Unisex Salon server running on http://0.0.0.0:${PORT}`);
   });
 }
 

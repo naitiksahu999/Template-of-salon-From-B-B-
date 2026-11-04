@@ -22,38 +22,28 @@ export interface Service {
   categoryId: string;
   name: string;
   description: string;
-  price: number; // in INR (effective or starting price)
+  price: number; // in INR (baseline or exact)
+  priceType?: 'exact' | 'range';
+  minPrice?: number;
+  maxPrice?: number;
   durationMinutes: number;
   imageUrl?: string;
   isActive: boolean;
   isFeatured: boolean;
   createdAt: string;
   updatedAt?: string;
-  priceType?: 'exact' | 'range';
-  minPrice?: number;
-  maxPrice?: number;
 }
 
-/**
- * Formats a service's price for display:
- * Exact: "₹300"
- * Range: "₹250 – ₹500"
- */
-export function formatServicePrice(
-  service?: { price?: number; priceType?: string; minPrice?: number; maxPrice?: number } | number | null
-): string {
-  if (service == null) return '';
-  if (typeof service === 'number') {
-    return `₹${service}`;
-  }
-  if (
-    service.priceType === 'range' &&
-    typeof service.minPrice === 'number' &&
-    typeof service.maxPrice === 'number'
-  ) {
+export function formatServicePrice(service?: { price?: number; priceType?: string; minPrice?: number; maxPrice?: number } | null): string {
+  if (!service) return '₹0';
+  if (service.priceType === 'range' && typeof service.minPrice === 'number' && typeof service.maxPrice === 'number') {
+    if (service.minPrice === service.maxPrice) {
+      return `₹${service.minPrice}`;
+    }
     return `₹${service.minPrice} – ₹${service.maxPrice}`;
   }
-  return `₹${service.price ?? 0}`;
+  const val = typeof service.price === 'number' ? service.price : (service.minPrice ?? 0);
+  return `₹${val}`;
 }
 
 export interface Customer {

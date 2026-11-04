@@ -144,8 +144,8 @@ export function createRealtimeOtp(target: string, type: 'mobile' | 'email'): { c
   };
 
   const message = type === 'email'
-    ? `Your B&B Family Salon Gmail verification OTP is ${code}. Valid for 5 minutes. Do not share this code.`
-    : `Your B&B Family Salon appointment verification OTP is ${code}. Valid for 5 minutes.`;
+    ? `Your Tassel Unisex Salon Gmail verification OTP is ${code}. Valid for 5 minutes. Do not share this code.`
+    : `Your Tassel Unisex Salon appointment verification OTP is ${code}. Valid for 5 minutes.`;
 
   return { code, expiresAt, message };
 }

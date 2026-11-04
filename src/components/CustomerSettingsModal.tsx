@@ -425,7 +425,7 @@ export const CustomerSettingsModal: React.FC<CustomerSettingsModalProps> = ({
 
       setConfirmModal({
         isOpen: true,
-        title: 'Welcome to B&B Family Salon!',
+        title: 'Welcome to Tassel Unisex Salon!',
         message: `Hello ${res.customer.name}! Your account has been verified. You can now view and manage all your bookings.`
       });
     } catch (err: any) {
@@ -652,16 +652,16 @@ export const CustomerSettingsModal: React.FC<CustomerSettingsModalProps> = ({
   };
 
   const handleDownloadIcs = (appt: Appointment) => {
-    const salonTitle = settings?.salonName || 'B & B Family Salon';
-    const salonPhone = settings?.phone || '+91 91316 29031';
-    const salonAddress = settings?.address || '2nd Floor, Ultimate Arcade, Kolar Road, Bhopal';
+    const salonTitle = settings?.salonName || 'Tassel Unisex Salon';
+    const salonPhone = settings?.phone || '+91 78800 86990';
+    const salonAddress = settings?.address || 'Kolar Road, Good Shapard Kalan, Mandakini Colony, Bhopal';
 
     const icsContent = [
       'BEGIN:VCALENDAR',
       'VERSION:2.0',
-      'PRODID:-//B&B Family Salon//Appointment//EN',
+      `PRODID:-//${salonTitle}//Appointment//EN`,
       'BEGIN:VEVENT',
-      `UID:${appt.id}@bbfamilysalon.com`,
+      `UID:${appt.id}@tasselunisexsalon.com`,
       `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').split('.')[0]}Z`,
       `DTSTART:${appt.date.replace(/-/g, '')}T${appt.time.replace(':', '')}00`,
       `DTEND:${appt.date.replace(/-/g, '')}T${appt.endTime.replace(':', '')}00`,
@@ -683,10 +683,10 @@ export const CustomerSettingsModal: React.FC<CustomerSettingsModalProps> = ({
   };
 
   const handleOpenWhatsAppForBooking = (appt: Appointment) => {
-    const adminPhone = settings?.adminWhatsAppPhone || settings?.phone || '+91 91316 29031';
+    const adminPhone = settings?.adminWhatsAppPhone || settings?.phone || '+91 78800 86990';
     const cleanAdmin = adminPhone.replace(/[^0-9]/g, '');
     const phone = cleanAdmin.length === 10 ? `91${cleanAdmin}` : cleanAdmin;
-    const salonTitle = settings?.salonName || 'B & B Family Salon';
+    const salonTitle = settings?.salonName || 'Tassel Unisex Salon';
 
     const message = [
       `👋 *Hello ${salonTitle} Admin*,`,
@@ -1905,7 +1905,7 @@ export const CustomerSettingsModal: React.FC<CustomerSettingsModalProps> = ({
                           No reviews submitted yet
                         </p>
                         <p className="text-[11px] text-[#79746D] dark:text-gray-400 max-w-sm mx-auto">
-                          Have you visited B&B Family Salon recently? Share your feedback with us above!
+                          Have you visited Tassel Unisex Salon recently? Share your feedback with us above!
                         </p>
                       </div>
                     ) : (
@@ -2139,7 +2139,7 @@ export const CustomerSettingsModal: React.FC<CustomerSettingsModalProps> = ({
                   Color Theme Preference
                 </h4>
                 <p className="text-[#79746D] dark:text-gray-400 text-xs mt-0.5">
-                  Set how B&B Family Salon displays across your device. The entire website immediately adapts.
+                  Set how Tassel Unisex Salon displays across your device. The entire website immediately adapts.
                 </p>
               </div>
 

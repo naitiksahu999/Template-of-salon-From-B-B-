@@ -548,18 +548,18 @@ export const BookingModal: React.FC<BookingModalProps> = ({
     if (!confirmedBooking) return;
     const startIso = `${confirmedBooking.date.replace(/-/g, '')}T${confirmedBooking.time.replace(':', '')}00`;
     const endIso = `${confirmedBooking.date.replace(/-/g, '')}T${confirmedBooking.endTime.replace(':', '')}00`;
-    const salonTitle = settings?.salonName || 'B & B Family Salon';
-    const salonPhone = settings?.phone || '+91 91316 29031';
+    const salonTitle = settings?.salonName || 'Tassel Unisex Salon';
+    const salonPhone = settings?.phone || '+91 78800 86990';
     const salonAddress = settings?.address
       ? `${settings.address}, ${settings.city || 'Bhopal'}, ${settings.state || 'MP'}`
-      : '2nd Floor, Ultimate Arcade, F11-12, Kolar Road, Bhopal, Madhya Pradesh';
+      : 'Kolar Road, Good Shapard Kalan, Mandakini Colony, Bhopal, Madhya Pradesh';
 
     const icsContent = [
       'BEGIN:VCALENDAR',
       'VERSION:2.0',
       `PRODID:-//${salonTitle}//Appointment//EN`,
       'BEGIN:VEVENT',
-      `UID:${confirmedBooking.id}@bbfamilysalon.com`,
+      `UID:${confirmedBooking.id}@tasselunisexsalon.com`,
       `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').split('.')[0]}Z`,
       `DTSTART:${startIso}`,
       `DTEND:${endIso}`,
@@ -596,7 +596,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
         <div className="px-3.5 sm:px-6 py-3 sm:py-4 border-b border-[#E6D4BA]/40 dark:border-white/10 bg-[#FAF7F2] dark:bg-[#141312] flex items-center justify-between gap-2.5 shrink-0 sticky top-0 z-20">
           <div className="min-w-0 flex-1">
             <div className="text-[10px] sm:text-[11px] uppercase tracking-wider text-[#9C753D] dark:text-[#C29F67] font-semibold flex items-center gap-2 truncate">
-              <span>B&B Family Salon · Bhopal</span>
+              <span>{settings?.salonName || 'Tassel Unisex Salon'} · Bhopal</span>
               {!customerUser && (
                 <span className="text-amber-800 dark:text-amber-300 font-bold bg-amber-100 dark:bg-amber-950/70 px-2 py-0.5 rounded-full text-[10px] flex items-center gap-1 border border-amber-300 dark:border-amber-700 shrink-0">
                   <Lock className="w-3 h-3" />
@@ -1279,7 +1279,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                     <p className="font-bold text-[#1C1B1A] dark:text-white">{selectedService.name}</p>
                   </div>
                   <div className="text-right">
-                    <p className="font-bold text-[#1C1B1A] dark:text-white tabular-nums">{formatServicePrice(selectedService)}</p>
+                    <p className="font-bold text-[#1C1B1A] dark:text-white tabular-nums">₹{selectedService.price}</p>
                     <span className="text-[10px] text-[#79746D] dark:text-gray-400">{selectedService.durationMinutes} mins</span>
                   </div>
                 </div>
@@ -1433,7 +1433,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                     <p className="font-bold text-[#1C1B1A] dark:text-white">{selectedService.name}</p>
                   </div>
                   <div className="text-right">
-                    <p className="font-bold text-[#1C1B1A] dark:text-white tabular-nums">{formatServicePrice(selectedService)}</p>
+                    <p className="font-bold text-[#1C1B1A] dark:text-white tabular-nums">₹{selectedService.price}</p>
                     <p className="text-[#79746D] dark:text-gray-400">{selectedService.durationMinutes} mins</p>
                   </div>
                 </div>
@@ -1539,7 +1539,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                         <div>
                           <p className="font-bold">Salon is Closed on this Day</p>
                           <p className="text-[11px] text-gray-600 dark:text-gray-400 mt-0.5">
-                            Per weekly schedule, B&B Family Salon is closed on {dayCfg?.dayName || 'this day'}. Please select an open date.
+                            Per weekly schedule, Tassel Unisex Salon is closed on {dayCfg?.dayName || 'this day'}. Please select an open date.
                           </p>
                         </div>
                       </div>
@@ -1993,7 +1993,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                 <div className="pt-2 border-t border-[#E6D4BA]/40 dark:border-white/10 flex items-start gap-2 text-[11px] text-[#79746D] dark:text-gray-400">
                   <MapPin className="w-4 h-4 text-[#9C753D] dark:text-[#C29F67] shrink-0 mt-0.5" />
                   <span>
-                    2nd Floor, Ultimate Arcade, F11-12, Kolar Road (near Sagar Gaire & Vishal Mega Mart), Bhopal
+                    {settings?.address || 'Kolar Road, Good Shapard Kalan, Mandakini Colony'} ({settings?.landmarks || 'Mandakini Colony'}), {settings?.city || 'Bhopal'}
                   </span>
                 </div>
               </div>
@@ -2028,7 +2028,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                 <button
                   type="button"
                   onClick={() => {
-                    const adminNum = settings?.adminWhatsAppPhone || settings?.phone || '+91 91316 29031';
+                    const adminNum = settings?.adminWhatsAppPhone || settings?.phone || '+91 78800 86990';
                     const customerInquiryMsg = generateCustomerInquiryWhatsAppMessage(confirmedBooking, settings);
                     openAdminWhatsApp(adminNum, customerInquiryMsg);
                   }}

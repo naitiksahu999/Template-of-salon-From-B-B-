@@ -1,5 +1,5 @@
 /**
- * B&B Family Salon - Centralized Time & Date Formatting Utility
+ * Tassel Unisex Salon - Centralized Time & Date Formatting Utility
  * Enforces 12-hour format with AM/PM across Indian Standard Time (IST, Asia/Kolkata, UTC+05:30).
  */
 

@@ -35,7 +35,7 @@ function request(method: string, path: string, body?: any, headers: Record<strin
 }
 
 async function runTests() {
-  console.log('=== STARTING B&B SALON VERIFICATION TESTS ===\n');
+  console.log('=== STARTING TASSEL UNISEX SALON VERIFICATION TESTS ===\n');
 
   // 1. Send OTP for Customer Signup
   const testEmail = `verified.test.${Date.now()}@gmail.com`;

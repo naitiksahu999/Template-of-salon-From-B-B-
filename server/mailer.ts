@@ -138,7 +138,7 @@ export async function sendGmailOtpEmail(
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>B&B Family Salon - Gmail Verification OTP</title>
+  <title>Tassel Unisex Salon - Gmail Verification OTP</title>
 </head>
 <body style="margin: 0; padding: 0; background-color: #FAF7F2; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1C1B1A;">
   <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #FAF7F2; padding: 30px 15px;">
@@ -149,7 +149,7 @@ export async function sendGmailOtpEmail(
           <tr>
             <td style="background-color: #1C1B1A; padding: 25px 30px; text-align: center;">
               <h1 style="margin: 0; color: #C29F67; font-size: 22px; font-weight: 900; letter-spacing: 1.5px; text-transform: uppercase;">
-                B &amp; B FAMILY SALON
+                TASSEL UNISEX SALON
               </h1>
               <p style="margin: 5px 0 0; color: #E6D4BA; font-size: 11px; letter-spacing: 0.5px; text-transform: uppercase;">
                 Premium Unisex Salon &amp; Beauty Sanctuary · Bhopal
@@ -195,8 +195,8 @@ export async function sendGmailOtpEmail(
           <tr>
             <td style="background-color: #FAF7F2; padding: 20px 30px; border-top: 1px solid #E6D4BA; text-align: center;">
               <p style="margin: 0; font-size: 12px; color: #79746D;">
-                <strong>B &amp; B Family Salon</strong> · 2nd Floor, Ultimate Arcade, F11-12, Kolar Road, Bhopal (Near Sagar Gaire)<br>
-                Direct Support &amp; Queries: <a href="tel:+919131629031" style="color: #9C753D; text-decoration: none; font-weight: 600;">+91 91316 29031</a>
+                <strong>Tassel Unisex Salon</strong> · Kolar Road, Good Shapard Kalan, Mandakini Colony, Bhopal<br>
+                Direct Support &amp; Queries: <a href="tel:+917880086990" style="color: #9C753D; text-decoration: none; font-weight: 600;">+91 78800 86990</a>
               </p>
             </td>
           </tr>
@@ -208,13 +208,13 @@ export async function sendGmailOtpEmail(
 </html>
     `;
 
-    const senderAddress = senderUser || (settings?.email || process.env.GMAIL_USER || 'no-reply@bbfamilysalon.com');
+    const senderAddress = senderUser || (settings?.email || process.env.GMAIL_USER || 'no-reply@tasselunisexsalon.com');
 
     const info = await transport.sendMail({
-      from: `"B&B Family Salon" <${senderAddress}>`,
+      from: `"Tassel Unisex Salon" <${senderAddress}>`,
       to: cleanEmail,
-      subject: `Your B&B Family Salon Gmail Verification OTP: ${otpCode}`,
-      text: `Hello ${displayName},\n\nYour 6-digit Gmail verification OTP for B&B Family Salon is: ${otpCode}\n\nThis code is valid for 5 minutes. Do not share this code with anyone.\n\nSalon Address: 2nd Floor, Ultimate Arcade, Kolar Road, Bhopal\nPhone: +91 91316 29031`,
+      subject: `Your Tassel Unisex Salon Gmail Verification OTP: ${otpCode}`,
+      text: `Hello ${displayName},\n\nYour 6-digit Gmail verification OTP for Tassel Unisex Salon is: ${otpCode}\n\nThis code is valid for 5 minutes. Do not share this code with anyone.\n\nSalon Address: Kolar Road, Good Shapard Kalan, Mandakini Colony, Bhopal\nPhone: +91 78800 86990`,
       html: htmlContent
     });
 
@@ -237,11 +237,11 @@ export async function sendBookingCardEmail(
   try {
     const { transport, isLiveSmtp, user: senderUser } = getTransporter(settings);
     const cleanEmail = toEmail.trim().toLowerCase();
-    const salonName = settings?.salonName || 'B & B Family Salon';
-    const salonPhone = settings?.phone || '+91 91316 29031';
-    const salonAddress = settings?.address || '2nd Floor, Ultimate Arcade, F11-12, Kolar Road';
+    const salonName = settings?.salonName || 'Tassel Unisex Salon';
+    const salonPhone = settings?.phone || '+91 78800 86990';
+    const salonAddress = settings?.address || 'Kolar Road, Good Shapard Kalan, Mandakini Colony';
     const salonCity = settings?.city || 'Bhopal';
-    const salonLandmarks = settings?.landmarks || 'Near Sagar Gaire and Vishal Mega Mart';
+    const salonLandmarks = settings?.landmarks || 'Mandakini Colony, Kolar Road';
 
     const mapsUrl = settings?.googleMapsUrl ||
       `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(salonName + ' ' + salonAddress + ' ' + salonCity)}`;
@@ -403,7 +403,7 @@ export async function sendBookingCardEmail(
 </html>
     `;
 
-    const senderAddress = senderUser || (settings?.email || process.env.GMAIL_USER || 'appointments@bbfamilysalon.com');
+    const senderAddress = senderUser || (settings?.email || process.env.GMAIL_USER || 'appointments@tasselunisexsalon.com');
     const replyAddress = (settings?.email || senderAddress).trim();
 
     const emailSubject = isPending
@@ -445,12 +445,12 @@ export async function testGmailDelivery(
   try {
     const { transport, isLiveSmtp, user: senderUser } = getTransporter(settings);
     const cleanEmail = targetEmail.trim().toLowerCase();
-    const sender = senderUser || (settings?.email || 'admin@bbfamilysalon.com');
+    const sender = senderUser || (settings?.email || 'admin@tasselunisexsalon.com');
 
     const info = await transport.sendMail({
-      from: `"B&B Family Salon - Test" <${sender}>`,
+      from: `"Tassel Unisex Salon - Test" <${sender}>`,
       to: cleanEmail,
-      subject: `B&B Family Salon - Gmail SMTP Connection Test`,
+      subject: `Tassel Unisex Salon - Gmail SMTP Connection Test`,
       text: `Congratulations! Your Gmail SMTP integration is working successfully. Outbound OTPs and Appointment Confirmation Cards will be delivered directly from this account.`,
       html: `<div style="font-family:sans-serif;padding:20px;background:#FAF7F2;border-radius:12px;border:1px solid #E6D4BA;"><h2 style="color:#1C1B1A;">✓ Gmail SMTP Test Successful</h2><p style="color:#79746D;">Your Gmail credentials are authenticated and connected. OTP codes and appointment booking confirmation cards are ready for delivery.</p></div>`
     });
@@ -483,7 +483,7 @@ export async function sendAdminBookingAlertEmail(
   try {
     const { transport, isLiveSmtp, user: senderUser } = getTransporter(settings);
     const cleanAdminEmail = adminEmail.trim().toLowerCase();
-    const senderAddress = senderUser || (settings?.email || process.env.GMAIL_USER || 'admin@bbfamilysalon.com');
+    const senderAddress = senderUser || (settings?.email || process.env.GMAIL_USER || 'admin@tasselunisexsalon.com');
 
     const htmlContent = `
 <!DOCTYPE html>
@@ -537,7 +537,7 @@ export async function sendAdminBookingAlertEmail(
     `;
 
     const info = await transport.sendMail({
-      from: `"B&B Family Salon - Bookings" <${senderAddress}>`,
+      from: `"Tassel Unisex Salon - Bookings" <${senderAddress}>`,
       to: cleanAdminEmail,
       subject: `🔔 New Booking #${appointment.bookingNumber}: ${appointment.customerName} (${appointment.serviceName})`,
       text: `New Booking Received!\n\nBooking Reference: ${appointment.bookingNumber}\nCustomer: ${appointment.customerName} (${appointment.customerPhone})\nService: ${appointment.serviceName}\nStylist: ${appointment.stylistName || 'Any Available'}\nDate & Time: ${formatDateIST(appointment.date)} at ${formatTimeRange12(appointment.time, appointment.endTime)}\nAmount: ₹${appointment.servicePrice}\nNotes: ${appointment.notes || 'None'}`,
@@ -565,10 +565,10 @@ export async function sendBookingStatusUpdateEmail(
   try {
     const { transport, isLiveSmtp, user: senderUser } = getTransporter(settings);
     const cleanEmail = toEmail.trim().toLowerCase();
-    const salonName = settings?.salonName || 'B & B Family Salon';
-    const salonPhone = settings?.phone || '+91 91316 29031';
-    const salonAddress = settings?.address || '2nd Floor, Ultimate Arcade, F11-12, Kolar Road, Bhopal';
-    const senderAddress = senderUser || (settings?.email || process.env.GMAIL_USER || 'appointments@bbfamilysalon.com');
+    const salonName = settings?.salonName || 'Tassel Unisex Salon';
+    const salonPhone = settings?.phone || '+91 78800 86990';
+    const salonAddress = settings?.address || 'Kolar Road, Good Shapard Kalan, Mandakini Colony, Bhopal';
+    const senderAddress = senderUser || (settings?.email || process.env.GMAIL_USER || 'appointments@tasselunisexsalon.com');
 
     let badgeText = 'APPOINTMENT UPDATE';
     let badgeBg = '#10B981';
@@ -707,7 +707,7 @@ export async function sendAdminBookingEventEmail(
   try {
     const { transport, isLiveSmtp, user: senderUser } = getTransporter(settings);
     const cleanAdminEmail = adminEmail.trim().toLowerCase();
-    const senderAddress = senderUser || (settings?.email || process.env.GMAIL_USER || 'admin@bbfamilysalon.com');
+    const senderAddress = senderUser || (settings?.email || process.env.GMAIL_USER || 'admin@tasselunisexsalon.com');
 
     let eventTitle = 'Booking Update Alert';
     let eventEmoji = '🔔';
@@ -779,7 +779,7 @@ export async function sendAdminBookingEventEmail(
     `;
 
     const info = await transport.sendMail({
-      from: `"B&B Family Salon - Admin Alerts" <${senderAddress}>`,
+      from: `"Tassel Unisex Salon - Admin Alerts" <${senderAddress}>`,
       to: cleanAdminEmail,
       subject: `${eventEmoji} ${eventTitle}: #${appointment.bookingNumber} - ${appointment.customerName}`,
       text: `${eventTitle}\n\nBooking: ${appointment.bookingNumber}\nCustomer: ${appointment.customerName} (${appointment.customerPhone})\nService: ${appointment.serviceName}\nSchedule: ${formatDateIST(appointment.date)} at ${formatTimeRange12(appointment.time, appointment.endTime)}\nStatus: ${appointment.status}\n${reason ? `Reason: ${reason}\n` : ''}Actor: ${actor}`,
